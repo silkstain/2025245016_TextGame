@@ -1,8 +1,9 @@
-﻿  Player.c
-  Story.c
-C:\Users\june0\Desktop\TextAdventure\Player.c(9,5): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+﻿  Battle.c
+C:\Users\june0\Desktop\TextAdventure\Battle.c(17,13): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  Character.c
+C:\Users\june0\Desktop\TextAdventure\Character.c(12,5): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  Event.c
+C:\Users\june0\Desktop\TextAdventure\Event.c(270,5): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   main.c
-C:\Users\june0\Desktop\TextAdventure\Story.c(34,5): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-C:\Users\june0\Desktop\TextAdventure\Story.c(77,5): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
   코드를 생성하고 있습니다...
   TextAdventure.vcxproj -> C:\Users\june0\Desktop\TextAdventure\Debug\TextAdventure.exe

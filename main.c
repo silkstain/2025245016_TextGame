@@ -1,18 +1,43 @@
 ﻿#include <stdio.h>
 #include <stdlib.h>
-#include "Player.h"
-#include "Story.h"
+#include <time.h>
+#include "Character.h"
+#include "Event.h"
+#include "Battle.h"
 
 int main() {
+
     Player player;
+
+    srand((unsigned)time(NULL) ^ (unsigned)clock());
+
+
     initPlayer(&player);
+    StoryEvent_Start(&player);
 
-    storyEvent_Start(&player);
+    while (1) {
+        if (player.hp <= 0) {
+            printf("당신은 모험에서 패배했습니다...\n");
+            break;
+        }
 
-    if (player.hp > 0)
-        storyEvent_End(&player);
-    else
-        printf("\n플레이어가 사망했습니다. 모험 실패.\n");
+        player.turnCount++;
+
+        ClearScreen();
+        printPlayerStatus(&player);
+
+        switch (player.location) {
+        case LOC_ROAD:
+            Event_Road(&player);
+            break;
+        case LOC_CAVE:
+            Event_Cave(&player);
+            break;
+        case LOC_TOWN:
+            Event_Town(&player);
+            break;
+        }
+    }
 
     return 0;
 }

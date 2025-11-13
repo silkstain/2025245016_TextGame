@@ -3,24 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\june0\\Desktop\\TextAdventure\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Event.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Event.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Story.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Story.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Character.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Character.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Story.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Story.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Character.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Character.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Player.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Player.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Battle.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Battle.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Player.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Player.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Battle.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Battle.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|C:\\Users\\june0\\Desktop\\TextAdventure\\Event.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{37EBF561-1DC3-43DA-B0D2-A0F3EE97D1DC}|TextAdventure.vcxproj|solutionrelative:Event.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,73 +38,97 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Story.c",
-              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Story.c",
-              "RelativeDocumentMoniker": "Story.c",
-              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Story.c",
-              "RelativeToolTip": "Story.c",
-              "ViewState": "AgIAAFMAAAAAAAAAAAAiwG8AAAAAAAAAAAAAAA==",
+              "Title": "main.c",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\main.c",
+              "RelativeDocumentMoniker": "main.c",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\main.c*",
+              "RelativeToolTip": "main.c*",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAmwBgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-11-04T04:23:48.925Z",
+              "WhenOpened": "2025-11-13T03:53:13.166Z",
               "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "Player.c",
-              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Player.c",
-              "RelativeDocumentMoniker": "Player.c",
-              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Player.c*",
-              "RelativeToolTip": "Player.c*",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAiwBQAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-11-04T04:18:02.904Z",
-              "IsPinned": true,
+              "Title": "Character.h",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Character.h",
+              "RelativeDocumentMoniker": "Character.h",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Character.h*",
+              "RelativeToolTip": "Character.h*",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-13T03:53:14.039Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Event.h",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Event.h",
+              "RelativeDocumentMoniker": "Event.h",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Event.h",
+              "RelativeToolTip": "Event.h",
+              "ViewState": "AgIAAAQAAAAAAAAAAAAmwBUAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-11-13T03:53:14.786Z"
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "main.c",
-              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\main.c",
-              "RelativeDocumentMoniker": "main.c",
-              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\main.c",
-              "RelativeToolTip": "main.c",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAiwBIAAAAAAAAAAAAAAA==",
+              "Title": "Event.c",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Event.c",
+              "RelativeDocumentMoniker": "Event.c",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Event.c*",
+              "RelativeToolTip": "Event.c*",
+              "ViewState": "AgIAADUAAAAAAAAAAAAmwEEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-11-07T17:14:04.028Z",
+              "WhenOpened": "2025-11-13T03:53:12.324Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Story.h",
-              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Story.h",
-              "RelativeDocumentMoniker": "Story.h",
-              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Story.h",
-              "RelativeToolTip": "Story.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 5,
+              "Title": "Battle.h",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Battle.h",
+              "RelativeDocumentMoniker": "Battle.h",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Battle.h",
+              "RelativeToolTip": "Battle.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-04T04:23:59.749Z",
+              "WhenOpened": "2025-11-13T03:59:34.007Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "Player.h",
-              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Player.h",
-              "RelativeDocumentMoniker": "Player.h",
-              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Player.h",
-              "RelativeToolTip": "Player.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-11-04T04:18:09.584Z",
+              "Title": "Battle.c",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Battle.c",
+              "RelativeDocumentMoniker": "Battle.c",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Battle.c",
+              "RelativeToolTip": "Battle.c",
+              "ViewState": "AgIAAAkAAAAAAAAAAAAAAAQAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-13T03:59:26.437Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Character.c",
+              "DocumentMoniker": "C:\\Users\\june0\\Desktop\\TextAdventure\\Character.c",
+              "RelativeDocumentMoniker": "Character.c",
+              "ToolTip": "C:\\Users\\june0\\Desktop\\TextAdventure\\Character.c*",
+              "RelativeToolTip": "Character.c*",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAcwBYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-13T03:53:11.543Z",
               "EditorCaption": ""
             }
           ]
