@@ -1,45 +1,49 @@
-#ifndef CHARACTER_H
-#define CHARACTER_H
+#pragma once
 
-// 플레이어 위치 상태 열거형
 typedef enum {
     LOC_ROAD,
+    LOC_TOWN,
     LOC_CAVE,
-    LOC_TOWN
+    LOC_FOREST,
+    LOC_BIG_CITY,      // ★ 대도시 허브 추가
+    LOC_DEMON_CASTLE
 } Location;
 
-typedef struct Player {
+
+typedef struct {
     char name[20];
 
-    int hp;
-    int maxHp;
+    int hp, maxHp;
     int gold;
 
-    int Str;
-    int Dex;
-    int Int;
-    int Def;
+    int Str, Dex, Def, Int;
 
     int turnCount;
     int lastTownTurn;
     int lastCaveTurn;
 
-    char* inventory[100];
+    int heardLegend;
+    int hasHolySword;
+    int hasCityPass;   // 대도시 출입증 보유 여부
 
-    Location location; // 현재 플레이어 위치(상태)
+    char* inventory[100];
+    Location location;
+
+    int lastRoadEvent;
+    int lastTownEvent;
+    int lastCampingTurn; /* 캠핑 강제 발생 기준 턴 기록 추가 */
 } Player;
 
-typedef struct Enemy {
+typedef struct {
     char name[20];
-    int hp;
-    int maxHp;
+    int hp, maxHp;
+    int attack;
     int gold;
-    int Str;
 } Enemy;
 
-// 초기화 함수
-void initPlayer(Player* ch);
-void initEnemy(Enemy* ch, const char* name, int hp, int str, int gold);
-void printPlayerStatus(Player* ch);
-
-#endif
+void initPlayer(Player* player);
+void initEnemy(Enemy* enemy, const char* name, int hp, int attack, int gold);
+void printPlayerStatus(const Player* player);
+void addItem(Player* player, const char* item);
+void useItem(Player* player, int index);
+void printInventory(const Player* player);

@@ -1,0 +1,34 @@
+# Ignore VS user/session files
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build directories
+Debug/
+Release/
+TextAdventure/Debug/
+TextAdventure/Release/
+
+# Compiled objects / intermediates
+*.obj
+*.pdb
+*.idb
+*.ilk
+*.log
+*.tlog
+*.VC.db
+*.opendb
+*.ipch
+*.vsidx
+
+# Executables / binaries
+*.exe
+*.dll
+*.lib
+*.out
+
+# Other
+*.cache
+*.tmp
