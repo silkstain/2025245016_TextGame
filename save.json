@@ -1,0 +1,21 @@
+{
+  "name": "asd",
+  "hp": 92,
+  "maxHp": 100,
+  "gold": 146,
+  "Str": 10,
+  "Dex": 10,
+  "Def": 10,
+  "Int": 10,
+  "turnCount": 2,
+  "lastTownTurn": -999,
+  "lastCaveTurn": -999,
+  "lastCampingTurn": -999,
+  "heardLegend": 0,
+  "hasHolySword": 0,
+  "hasCityPass": 0,
+  "location": 0,
+  "lastRoadEvent": 7,
+  "lastTownEvent": 0,
+  "inventory": ["HP 포션", "HP 포션", "HP 포션"]
+}

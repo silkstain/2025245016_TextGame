@@ -6,22 +6,22 @@
 #include "Character.h"
 #include "Battle.h"
 
-static int caveStage = 0;
-
-/* 판정 헬퍼 */
-static int StatCheck(const char* statName, int statValue, int difficulty) {
+/* 기타 유틸 함수 */
+// 스탯 롤 함수
+int StatCheck(const char* statName, int statValue, int difficulty) {
     int roll = statValue + (rand() % 6);
-    printf("[판정] %s: %d + 난수 => %d / 난이도 %d : %s\n",
-        statName, statValue, roll, difficulty, (roll >= difficulty ? "성공" : "실패"));
+    printf("[판정] %s: %d + 난수 => %d / 난이도 %d : %s\n", statName, statValue, roll, difficulty, (roll >= difficulty ? "성공" : "실패"));
     return roll >= difficulty;
 }
 
-/* 유틸 */
+// 이벤트 제목 구분 함수
 void printDivider(const char* title) {
     printf("\n========================================\n");
     printf("  %s\n", title);
     printf("========================================\n");
 }
+
+// 화면 클리어 함수
 void ClearScreen() {
 #ifdef _WIN32
     system("cls");
@@ -29,109 +29,192 @@ void ClearScreen() {
     printf("\x1b[2J\x1b[H");
 #endif
 }
+
+// 엔터 대기 함수
 void EnterToContinue() {
     int c;
     printf("\n(엔터를 눌러 계속...)");
     while ((c = getchar()) != '\n' && c != EOF) {}
 }
 
-/* 스토리 / 프롤로그 */
+/* 스토리 시작 이벤트 */
 void Prologue_Event(Player* player) {
     printDivider("프롤로그");
-    printf("깊은 심연, 오래전 봉인의 틈새로 새어나온 검은 안개는 천천히 대지를 뒤덮였습니다.\n");
-    printf("왕국의 기록관들은 그것을 ‘귀환하는 그림자’라 불렀고, 농부들은 땅이 썩는다며 두려움에 떨었습니다.\n");
-    printf("그리고 며칠 전, 전설 속에만 남아있던 마왕이 다시 눈을 떴다는 소식이 퍼져 나갔습니다.\n");
-    printf("마을 간을 잇는 길에는 괴이한 짐승과 돌연변이들이 출몰하기 시작했고, 상인들은 더 이상 대륙을 건너지 않습니다.\n");
-    printf("당신은 평범하게 살아갈 수도 있었지만, 선택했습니다. 후퇴가 아닌 전진을.\n");
-    printf("아직 미약한 힘이지만, 한 걸음씩 세상을 바로 세울 수 있을지도 모릅니다.\n");
-    printf("이제, 당신의 이름이 이야기의 서문에 새겨집니다.\n");
+    printf("\n");
     EnterToContinue();
 }
+
+// 스토리 메인 이벤트 - 게임 시작
 void StoryEvent_Start(Player* player) {
     printDivider("게임 시작");
     printf("“%s”... 그 이름을 마음속으로 되뇌이며 당신은 첫 걸음을 내딛습니다.\n", player->name);
     printf("새벽 안개가 걷히는 길 위, 갈라진 바위 사이로 바람이 스치고 먼 곳에서 종이 울리는 듯 잔향이 번집니다.\n");
     printf("땅은 아직 침묵하고 있지만, 위협은 그늘 아래에서 움직이고 있습니다.\n");
     printf("당신의 모험은 지금 시작되었습니다.\n");
-    player->location = LOC_ROAD;
+	player->location = LOC_ROAD; // 시작 위치를 Road로 설정
     EnterToContinue();
 }
 
-/* 숲 / 마왕성 */
-void Forest_HolySword(Player* player) {
-    printDivider("전설의 숲");
-    printf("노인이 속삭였던 ‘선택받은 공터’는 예상보다 고요했습니다. 새소리도, 벌레소리도, 바람조차도 멈춘 공간.\n");
-    printf("푸른 이끼가 깔린 중심부에 은빛과 옥빛이 뒤섞인 검이 박혀 있고 주위에는 오래전 용사의 흔적처럼 희미한 빛의 문양들이 떠 있습니다.\n");
-    printf("손을 뻗는 순간, 차갑지만 맑은 떨림이 뼛속까지 스며드는 기묘한 감각이 찾아옵니다.\n");
-    printf("성검을 뽑으시겠습니까? (1: 예, 2: 아니오): ");
-    int choice; scanf("%d",&choice); while(getchar()!='\n');
+/* Road 이벤트 */
+void Event_Road(Player* player) {
+    printDivider("길거리 (Road)");
+    printf("갈라진 자갈과 발자국 흔적이 뒤섞인 길. 바람은 주변 수풀의 잎을 뒤집으며 작은 짐승들의 경계심을 건드립니다.\n");
+    printf("오늘도 이 길 위에서 당신은 성장하거나, 상처받거나, 아무 일도 없이 지나갈 것입니다.\n");
 
-    if (choice == 1) {
-        if (StatCheck("힘", player->Str, 15)) {
-            printf("당신의 손아귀가 검을 움켜쥐자 땅에 새겨진 문양들이 순차적으로 밝아지며 고요가 파도처럼 흔들렸습니다.\n");
-            printf("묵직했던 저항은 서서히 빛으로 변해 당신의 혈관을 타고 흐르고, 검은 조용히 당신을 ‘주인’으로 인정했습니다.\n");
-            printf("성검을 획득했습니다! (힘 +10, 민첩 +5)\n");
-            player->Str += 10; player->Dex += 5; player->hasHolySword = 1;
-            EnterToContinue();
-            DemonKingCastle_Entrance(player);
-        } else {
-            printf("검은 미동조차 없고 주변의 빛은 잠깐 움찔하다가 다시 가라앉습니다.\n");
-            printf("당신의 숨결은 아직 이 숲이 인정하는 ‘강함’에 미치지 못했습니다.\n");
-            printf("언젠가 다시 오겠다는 다짐을 남기고 발길을 돌립니다.\n");
-            EnterToContinue();
-        }
-    } else {
-        printf("당신은 기묘한 압박감을 느끼며 아직 때가 아니이라고 판단합니다.\n");
-        printf("숲은 다시 처음처럼 아무것도 없었던 것처럼 고요해집니다.\n");
-        EnterToContinue();
+	// 이벤트 쿨타임 설정
+	int townCooldown = 4; // 마을 쿨타임
+	int caveCooldown = 5; // 동굴 쿨타임
+	int ev, attempts = 0; // 이벤트 종류 및 시도 횟수 변수
+
+    /* 일정 턴 이후 야영 */
+    if (player->turnCount - player->lastCampingTurn >= 7) {
+        CampingEvent(player);
+        return;
     }
-    player->location = LOC_ROAD;
+
+    while (1) {
+        /* 이벤트 랜덤 발생 */
+        ev = rand() % 14;
+
+        /* 동굴 */
+        if (ev == 3) {
+            // 동굴 모를 경우 패스
+			if (player->knowsCave == 0)
+                continue;
+			// 대도시 출입증 소지 시 패스
+            if (player->hasCityPass == 1)
+                continue;
+			// 동굴 쿨타임 체크
+            if (player->turnCount - player->lastCaveTurn < caveCooldown) {
+                attempts++;
+                if (attempts > 50) { ev = 4; break; }
+                continue;
+            }
+        }
+
+        /* 마왕성 */
+        if (ev == 13) {
+			// 대도시 출입증 없을 경우 패스
+            if (player->hasCityPass == 0) 
+                continue;
+        }
+
+        /* 마을 쿨타임 체크 */
+        if (ev == 5 && player->turnCount - player->lastTownTurn < townCooldown) {
+            attempts++;
+            if (attempts > 50) { ev = 4; break; }
+            continue;
+        }
+
+        /* 이전 이벤트와 중복 방지 */
+        if (ev == player->lastRoadEvent) {
+            attempts++;
+            if (attempts > 50) { ev = 4; break; }
+            continue;
+        }
+
+        break; // 유효한 이벤트 발생
+    }
+
+    /* 이벤트 실행 */
+    switch (ev) {
+    case 0:
+        TreasureEvent(player);
+        break;
+    case 1:
+        TrapEvent(player);
+        break;
+    case 2:
+        FondEvent(player);
+        break;
+    case 3:
+		player->lastCaveTurn = player->turnCount; // 동굴 입장 쿨타임 기록
+        RoadEvent_CaveEntrance(player);
+        break;
+    case 4:
+        printDivider("평화로운 길");
+        printf("잠시 아무 위협도 없는 구간. 잔잔한 호흡이 안쪽 근육을 풀어줍니다.\n");
+        EnterToContinue();
+        break;
+    case 5:
+		player->lastTownTurn = player->turnCount; // 마을 입장 쿨타임 기록
+        RoadEvent_SmallTownEntrance(player);
+        break;
+    case 6: FindFood(player); break;
+    case 7:
+		// 숲 입구 이벤트 분기
+        if (player->heardLegend == 1 && !player->hasHolySword)
+            RoadEvent_ForestEntrance(player);
+        else
+            Encounter_goblin(player);
+        break;
+    case 8:
+        FallenTreeEvent(player);
+        break;
+    case 9:
+        BanditAmbushEvent(player);
+        break;
+    case 10: 
+        TravelingSageEvent(player); 
+        break;
+    case 11:
+        MeteorShardEvent(player); 
+        break;
+    case 12:
+        RoadEvent_HugeCityEntrance(player);
+        break;
+    case 13: 
+        RoadEvent_DemonCastleEntrance(player); 
+        break; /* 마왕성 연결 */
+    default:
+        RoadEvent_HugeCityEntrance(player);
+        break;
+    }
+
+    player->lastRoadEvent = ev;
 }
 
-void DemonKingCastle_Entrance(Player* player) {
-    printDivider("마왕성 앞");
-    printf("성검의 잔광이 길을 이어 붙여 마치 봉인된 좌표를 강제로 드러내듯 굽이진 길 끝에 거대한 성이 모습을 드러냅니다.\n");
-    printf("검붉은 첨탑과 부패한 마력의 소용돌이, 그리고 창문마다 흐르는 녹색 번개의 실루엣.\n");
-    printf("저 곳 너머에는 세상을 뒤틀어버린 의지가 기다리고 있습니다. 돌아갈 수 없는 마지막 구역입니다.\n");
-    printf("당신의 심장은 고요하지만 단단히 뛰고 있습니다. 결전을 앞두고 한 번 더 호흡을 고칩니다.\n");
-    player->location = LOC_DEMON_CASTLE;
-    printf("\n(엔터를 눌러 마왕성으로 진입합니다...)");
-    getchar();
-}
-
-/* ROAD 입장 이벤트 */
+/* 마을 이벤트 */
 void RoadEvent_SmallTownEntrance(Player* player) {
     int choice;
     printDivider("마을 발견");
     printf("먼지 쌓인 길 끝, 낮게 피어오른 굴뚝 연기와 목재 울타리가 얇게 둘러진 작은 마을이 시야에 들어옵니다.\n");
     printf("지나가는 행인은 적고, 간헐적으로 들리는 망치질 소리가 생존 의지를 알려줍니다.\n");
-    printf("마을로 들어가시겠습니까? (1: 예, 2: 아니오): ");
-    scanf("%d",&choice); while(getchar()!='\n');
+    printf("마을로 들어가시겠습니까?\n");
+    printf("1) 예\n");
+    printf("2) 아니오\n");
+    printf("> ");
+    scanf("%d", &choice); while (getchar() != '\n');
     if (choice != 1) {
         printf("당신은 잠깐 멈춰 바라보다 다시 길을 선택합니다.\n");
         EnterToContinue(); return;
     }
     printf("낡은 문짝을 밀고 안으로 들어섭니다. 사람들의 시선이 잠깐 모였다가 흩어집니다.\n");
     EnterToContinue();
-    player->location = LOC_TOWN;
+	player->location = LOC_TOWN; // 마을로 위치 변경
 }
 
+/* 동굴 입구 이벤트 */
 void RoadEvent_CaveEntrance(Player* player) {
     int choice;
     printDivider("동굴 발견");
     printf("지면이 움푹 꺼져 검은 틈이 생겼고, 안쪽에서는 축축한 흙냄새와 오래된 광물의 쇳내가 희미하게 배어 나옵니다.\n");
     printf("안쪽으로 이어지는 바람은 마치 허기진 짐승의 숨처럼 간헐적으로 들립니다.\n");
-    printf("동굴로 들어가시겠습니까? (1: 예, 2: 아니오): ");
-    scanf("%d",&choice); while(getchar()!='\n');
+    printf("동굴로 들어가시겠습니까?\n");
+    printf("1) 예\n");
+    printf("2) 아니오\n");
+    printf("> ");
+    scanf("%d", &choice); while (getchar() != '\n');
     if (choice != 1) {
         printf("위험을 뒤로한 채 다시 햇빛 아래 길을 이어 갑니다.\n");
         EnterToContinue(); return;
     }
     printf("어둠에 눈을 적응시키며 조심스럽게 발을 들입니다.\n");
     EnterToContinue();
-    player->location = LOC_CAVE;
+	player->location = LOC_CAVE; // 동굴로 위치 변경
 }
 
+/* 대도시 입구 이벤트 */
 void RoadEvent_HugeCityEntrance(Player* player) {
     int c;
     printDivider("대도시 검문소");
@@ -140,6 +223,7 @@ void RoadEvent_HugeCityEntrance(Player* player) {
     printf("최근 마왕의 재림 이후 대도시 전역에 걸쳐 검문이 강화되었다고 들었습니다.\n");
     printf("경비병들은 지나가는 사람들을 하나하나 철저하게 조사하고 있습니다.\n\n");
 
+    /* 출입증 미보유 */
     if (!player->hasCityPass) {
         printf("경비병: \"마왕군이 변장하고 침투하려 한다는 보고가 있다.\"\n");
         printf("경비병: \"출입증 없는 자는 누구든 도시 안으로 들일 수 없다. 돌아가라.\"\n\n");
@@ -152,7 +236,8 @@ void RoadEvent_HugeCityEntrance(Player* player) {
     printf("경비병: \"출입증 확인됐다. 이 문을 지나도 좋다. 안쪽에서도 검문이 계속되니 주의하라.\"\n\n");
 
     printf("1) 대도시에 입장한다\n");
-    printf("2) 그냥 지나친다\n> ");
+    printf("2) 그냥 지나친다\n");
+    printf("> ");
 
     if (scanf("%d", &c) != 1) {
         while (getchar() != '\n');
@@ -163,7 +248,7 @@ void RoadEvent_HugeCityEntrance(Player* player) {
 
     if (c == 1) {
         printf("철문이 천천히 열리고, 당신은 강화된 경비 아래의 대도시로 들어갑니다.\n");
-        player->location = LOC_BIG_CITY;
+		player->location = LOC_BIG_CITY; // 대도시로 위치 변경
     }
     else {
         printf("당신은 다시 길로 발길을 돌립니다.\n");
@@ -171,22 +256,50 @@ void RoadEvent_HugeCityEntrance(Player* player) {
     EnterToContinue();
 }
 
+/* 숲 입구 이벤트 */
+void RoadEvent_ForestEntrance(Player* player) {
+    printDivider("전설의 숲 입구");
+    printf("전설로만 듣던 숲의 경계. 나무들은 정상적인 성장 방향을 잊은 듯 서로 엮여 아치형 통로를 만들고\n");
+    printf("희미한 빛의 입자들이 공중에서 숨을 쉬듯 천천히 맥동합니다.\n");
+    printf("숲으로 들어가겠습니까?\n");
+    printf("1) 들어간다\n");
+    printf("2) 아직 아니다\n");
+    printf("> ");
+    int c;
+    scanf("%d", &c);
+    while (getchar() != '\n');
+    if (c == 1) {
+        printf("당신은 얽힌 뿌리 사이로 발을 들입니다. 공기는 한층 조용하고 또렷합니다.\n");
+		player->location = LOC_FOREST; // 숲으로 위치 변경
+    }
+    else {
+        printf("아직 준비가 더 필요하다고 느끼며 길을 계속 걷습니다.\n");
+    }
+    EnterToContinue();
+}
 
-/* ROAD 기본 랜덤 */
+/* 보물 상자 이벤트 */
 void TreasureEvent(Player* player) {
     printDivider("보물 상자");
-    int gold = 100 + rand()%101;
-    int mimic = rand()%2;
+    int gold = 100 + rand() % 101;
+    int mimic = rand() % 2;
     printf("잡초 사이 반쯤 묻힌 고풍스러운 상자. 녹슨 금속 테가 희미하게 반사광을 내며 당신의 시선을 붙듭니다.\n");
-    printf("상자를 열어보시겠습니까? (1: 예, 2: 아니오): ");
-    int choice; scanf("%d",&choice); while(getchar()!='\n');
+    printf("상자를 열어보시겠습니까?\n");
+    printf("1) 예\n");
+    printf("2) 아니오\n");
+    printf("> ");
+    int choice; scanf("%d", &choice); while (getchar() != '\n');
+	// 상자 열기
     if (choice == 1) {
         printf("천천히 뚜껑을 들어올립니다...\n");
+		// 미믹 등장
         if (mimic) {
             printf("혀와 이빨이 튀어나오며 상자 전체가 뒤틀립니다! 미믹의 급습입니다!\n");
-            Enemy mimicEnemy; initEnemy(&mimicEnemy,"미믹",30+rand()%21,5+rand()%6,0);
-            battle(player,&mimicEnemy);
-        } else {
+            Enemy mimicEnemy; initEnemy(&mimicEnemy, "미믹", 30 + rand() % 21, 5 + rand() % 6, 0);
+            battle(player, &mimicEnemy);
+        }
+		// 보물 획득
+        else {
             printf("안에는 오래된 왕가 문양이 찍힌 주화가 가득합니다. 금화 %d개 획득!\n", gold);
             player->gold += gold;
         }
@@ -196,6 +309,7 @@ void TreasureEvent(Player* player) {
     EnterToContinue();
 }
 
+/* 함정 이벤트 */
 void TrapEvent(Player* player) {
     printDivider("함정");
     printf("발 아래 흙이 살짝 꺼지는 순간, ‘철컥’ 소리와 함께 양옆에서 날카로운 금속 장치가 튀어나오려 합니다.\n");
@@ -203,7 +317,8 @@ void TrapEvent(Player* player) {
 
     printf("1) 빠르게 몸을 피한다 (민첩 판정)\n");
     printf("2) 함정의 구조를 분석해 해제한다 (지능 판정)\n");
-    printf("3) 무시하고 지나간다\n> ");
+    printf("3) 무시하고 지나간다\n");
+    printf("> ");
 
     int c;
     if (scanf("%d", &c) != 1) {
@@ -214,6 +329,7 @@ void TrapEvent(Player* player) {
     }
     while (getchar() != '\n');
 
+	// 민첩 판정
     if (c == 1) {
         printf("\n빠르게 뛰어들 준비를 합니다. (민첩 난이도 11)\n");
         if (StatCheck("민첩", player->Dex, 11)) {
@@ -226,6 +342,7 @@ void TrapEvent(Player* player) {
             if (player->hp < 0) player->hp = 0;
         }
     }
+	// 지능 판정
     else if (c == 2) {
         printf("\n함정의 구조를 재빨리 파악하려 합니다. (지능 난이도 12)\n");
         if (StatCheck("지능", player->Int, 12)) {
@@ -240,6 +357,7 @@ void TrapEvent(Player* player) {
             if (player->hp < 0) player->hp = 0;
         }
     }
+	// 아무 조치도 하지 않음
     else {
         printf("\n아무 조치도 하지 않고 지나치려 합니다...\n");
         int dmg = 8 + rand() % 6;
@@ -251,227 +369,524 @@ void TrapEvent(Player* player) {
     EnterToContinue();
 }
 
-
+/* 우물 이벤트 */
 void FondEvent(Player* player) {
     printDivider("마법 우물");
     printf("지표 위엔 없을 법한 푸른 빛의 물이 잔잔히 맺혀 있고, 표면에는 성장과 기억의 문양이 살짝 흐르고 있습니다.\n");
     printf("손을 담그면 한 방향의 힘을 끌어올릴 수 있을 것 같습니다.\n");
-    printf("1) 근육의 활성(힘 난이도 10)  2) 사고의 정렬(지능 난이도 10) > ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
+    printf("1) 근육의 활성\n");
+    printf("2) 사고의 정렬\n");
+    printf("> ");
+    int c; scanf("%d", &c); while (getchar() != '\n');
     if (c == 1) {
-        if (StatCheck("힘", player->Str, 10)) { printf("힘의 파동이 팔과 어깨를 순환합니다. Str +1\n"); player->Str += 1; }
-        else printf("기운이 흩어져 잠깐의 피로만 남습니다.\n");
-    } else if (c == 2) {
-        if (StatCheck("지능", player->Int, 10)) { printf("차분한 물결이 사고를 재구성합니다. Int +1\n"); player->Int += 1; }
+        if (StatCheck("힘", player->Str, 10)) { 
+            printf("힘의 파동이 팔과 어깨를 순환합니다. Str +1\n"); player->Str += 1; 
+        }
+        else 
+            printf("기운이 흩어져 잠깐의 피로만 남습니다.\n");
+    }
+    else if (c == 2) {
+        if (StatCheck("지능", player->Int, 10)) {
+            printf("차분한 물결이 사고를 재구성합니다. Int +1\n"); 
+            player->Int += 1; 
+        }
         else printf("잡음만 맴돌다 사라집니다.\n");
-    } else {
+    }
+    else {
         printf("우물을 지나칩니다.\n");
     }
     EnterToContinue();
 }
 
+/* 고블린 조우 이벤트 */
 void Encounter_goblin(Player* player) {
     printDivider("고블린 조우");
     printf("작은 그린 스킨이 낡은 가죽 조각과 삐뚤어진 칼을 들고 우물거리는 소리를 냅니다. 눈빛은 허기와 탐욕의 중간.\n");
-    Enemy goblin; initEnemy(&goblin,"고블린",25+rand()%11,3+rand()%5,20+rand()%31);
-    battle(player,&goblin);
+    Enemy goblin; initEnemy(&goblin, "고블린", 25 + rand() % 11, 3 + rand() % 5, 20 + rand() % 31);
+    battle(player, &goblin);
     EnterToContinue();
 }
 
+/* 버섯 발견 이벤트 */
 void FindFood(Player* player) {
-    int choice; int poison = rand()%100;
+    int choice; int poison = rand() % 100;
     printDivider("버섯 발견");
     printf("그늘진 고목 아래 군생하는 버섯 무리. 모양은 식용과 독이 애매하게 섞여 있어 보입니다.\n");
-    printf("1. 그냥 먹는다  2. 지식으로 판별(지능 5 이상)\n> ");
-    scanf("%d",&choice); while(getchar()!='\n');
+    printf("1) 그냥 먹는다\n");
+    printf("2) 지식으로 판별(지능 5 이상)\n");
+    printf("> ");
+    scanf("%d", &choice); while (getchar() != '\n');
     if (choice == 1) {
         if (poison < 50) {
-            int dmg = 10 + rand()%11;
+            int dmg = 10 + rand() % 11;
             printf("아릿한 쓴맛과 함께 독이 퍼집니다! HP -%d\n", dmg);
             player->hp -= dmg; if (player->hp < 0) player->hp = 0;
-        } else {
-            printf("부드럽고 향긋한 맛! 체력이 회복됩니다. HP +10\n");
+        }
+        else {
+            printf("부드럽고 향긋한 맛! 다행히 독버섯이 아니었습니다. 체력이 회복됩니다. HP +10\n");
             player->hp += 10; if (player->hp > player->maxHp) player->hp = player->maxHp;
         }
-    } else if (choice == 2) {
+    }
+    else if (choice == 2) {
         if (player->Int >= 5) {
             printf("자잘한 균사 패턴을 분석해 안전함을 확인. 영양분이 풍부합니다! HP +20\n");
             player->hp += 20; if (player->hp > player->maxHp) player->hp = player->maxHp;
-        } else {
+        }
+        else {
             printf("판별 실패. 애매한 위험을 피하고 버립니다.\n");
+            printf("굶으면서 지나갑니다. HP - 15\n");
+            player->hp -= 15;
+            if (player->hp < 0)
+                player->hp = 0;
         }
     }
     EnterToContinue();
 }
 
-/* ROAD 확장 스탯 이벤트 */
+/* 쓰러진 거목 이벤트 */
 void FallenTreeEvent(Player* player) {
     printDivider("쓰러진 거목");
     printf("폭풍에 뿌리째 뽑힌 듯한 거대한 나무가 길을 완전히 가로막고 있습니다. 이끼와 곰팡이 사이로 오래된 생명의 잔향이 뿌옇게 증발합니다.\n");
-    printf("1) 힘으로 굴린다(Str 12) 2) 날렵히 넘는다(Dex 11) 3) 약점 찾는다(Int 11) 4) 우회한다\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    if (c==1) {
-        if (StatCheck("힘", player->Str, 12)) { printf("천천히 나무가 굴러가며 길이 열립니다. Str +1\n"); player->Str += 1; }
-        else { printf("근육이 경련하며 저항합니다. HP -8\n"); player->hp -= 8; if (player->hp<0) player->hp=0; }
-    } else if (c==2) {
-        if (StatCheck("민첩", player->Dex, 11)) { printf("균형감각이 돋보이게 매끄럽게 넘었습니다. Dex +1\n"); player->Dex += 1; }
-        else { printf("이끼에 미끄러졌습니다. HP -5\n"); player->hp -= 5; if (player->hp<0) player->hp=0; }
-    } else if (c==3) {
-        if (StatCheck("지능", player->Int, 11)) { printf("부식된 지점 절단 후 통로 확보! Int +1, 골드 +10(마른 수액 판매)\n"); player->Int +=1; player->gold +=10; }
+    printf("1) 힘으로 굴린다(Str 12)\n");
+    printf("2) 날렵히 넘는다(Dex 11)\n");
+    printf("3) 약점을 찾는다(Int 11)\n");
+    printf("4) 우회한다\n");
+    printf("> ");
+    int c; scanf("%d", &c); while (getchar() != '\n');
+    if (c == 1) {
+        if (StatCheck("힘", player->Str, 12)) {
+            printf("천천히 나무가 굴러가며 길이 열립니다. Str +1\n");
+            player->Str += 1;
+        }
+        else {
+            printf("근육이 경련하며 저항합니다. HP -8\n");
+            player->hp -= 8;
+            if (player->hp < 0)
+                player->hp = 0;
+        }
+    }
+    else if (c == 2) {
+        if (StatCheck("민첩", player->Dex, 11)) {
+            printf("균형감각이 돋보이게 매끄럽게 넘었습니다. Dex +1\n");
+            player->Dex += 1;
+        }
+        else {
+            printf("이끼에 미끄러졌습니다. HP -5\n");
+            player->hp -= 5;
+            if (player->hp < 0)
+                player->hp = 0;
+        }
+    }
+    else if (c == 3) {
+        if (StatCheck("지능", player->Int, 11)) {
+            printf("부식된 지점 절단 후 통로 확보! Int +1, 골드 +10(마른 수액 판매)\n");
+            player->Int += 1; player->gold += 10;
+        }
         else printf("구조를 이해하지 못해 시간만 흘렀습니다.\n");
-    } else {
+    }
+    else {
         printf("안전한 작은 오솔길을 찾아 우회합니다.\n");
     }
     EnterToContinue();
 }
 
+/* 산적 매복 이벤트 */
 void BanditAmbushEvent(Player* player) {
     printDivider("산적 습격");
     printf("먼저 깔린 돌들 위로 낡은 붉은 천이 걸쳐져 있고 그 틈 사이로 산적들이 반짝이는 눈을 드러냅니다.\n");
     printf("그들의 긴장과 희열이 공기를 눌러옵니다. 선택은 빠르게 내려져야 합니다.\n");
-    printf("1) 정면 돌파(Str 13) 2) 방어 유지(Def 12) 3) 이탈(Dex 13) 4) 속임수(Int 12)\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    if (c==1) {
-        if (StatCheck("힘", player->Str, 13)) { printf("거칠게 휘몰아쳐 틈을 열었습니다. 골드 +30, Str +1\n"); player->gold +=30; player->Str +=1; }
-        else { printf("균형을 잃고 반격을 허용. HP -12\n"); player->hp -=12; if(player->hp<0) player->hp=0; }
-    } else if (c==2) {
-        if (StatCheck("방어", player->Def, 12)) { printf("산적들의 공격이 무딘 파동처럼 흩어졌습니다. Def +1\n"); player->Def +=1; }
-        else { printf("압박이 누적되어 틈이 생겼습니다. HP -10\n"); player->hp -=10; if(player->hp<0) player->hp=0; }
-    } else if (c==3) {
-        if (StatCheck("민첩", player->Dex, 13)) { printf("매복 구역을 유연하게 이탈. Dex +1, 골드 +15\n"); player->Dex +=1; player->gold +=15; }
-        else { int loss=10; if(player->gold<loss) loss=player->gold; printf("퇴로 차단! HP -8, 골드 -%d\n", loss); player->hp -=8; if(player->hp<0) player->hp=0; player->gold -= loss; }
-    } else if (c==4) {
-        if (StatCheck("지능", player->Int, 12)) { printf("잘못된 증원 위치를 흘려 혼란 유발! Int +1\n"); player->Int +=1; }
-        else { int loss=15; if(player->gold<loss) loss=player->gold; printf("거짓말이 들통났습니다. 골드 -%d\n", loss); player->gold -= loss; }
-    } else {
-        printf("주저하다 빈틈을 내주었습니다. HP -6\n"); player->hp -=6; if(player->hp<0) player->hp=0;
+    printf("1) 정면 돌파(Str 13)\n");
+    printf("2) 방어 유지(Def 12)\n");
+    printf("3) 이탈(Dex 13)\n");
+    printf("4) 속임수(Int 12)\n");
+    printf("> ");
+    int c; scanf("%d", &c); while (getchar() != '\n');
+    if (c == 1) {
+        if (StatCheck("힘", player->Str, 13)) { printf("거칠게 휘몰아쳐 틈을 열었습니다. 골드 +30, Str +1\n"); player->gold += 30; player->Str += 1; }
+        else { printf("균형을 잃고 반격을 허용. HP -12\n"); player->hp -= 12; if (player->hp < 0) player->hp = 0; }
+    }
+    else if (c == 2) {
+        if (StatCheck("방어", player->Def, 12)) { printf("산적들의 공격이 무딘 파동처럼 흩어졌습니다. Def +1\n"); player->Def += 1; }
+        else { printf("압박이 누적되어 틈이 생겼습니다. HP -10\n"); player->hp -= 10; if (player->hp < 0) player->hp = 0; }
+    }
+    else if (c == 3) {
+        if (StatCheck("민첩", player->Dex, 13)) { printf("매복 구역을 유연하게 이탈. Dex +1, 골드 +15\n"); player->Dex += 1; player->gold += 15; }
+        else { int loss = 10; if (player->gold < loss) loss = player->gold; printf("퇴로 차단! HP -8, 골드 -%d\n", loss); player->hp -= 8; if (player->hp < 0) player->hp = 0; player->gold -= loss; }
+    }
+    else if (c == 4) {
+        if (StatCheck("지능", player->Int, 12)) { printf("잘못된 증원 위치를 흘려 혼란 유발! Int +1\n"); player->Int += 1; }
+        else { int loss = 15; if (player->gold < loss) loss = player->gold; printf("거짓말이 들통났습니다. 골드 -%d\n", loss); player->gold -= loss; }
+    }
+    else {
+        printf("주저하다 빈틈을 내주었습니다. HP -6\n"); player->hp -= 6; if (player->hp < 0) player->hp = 0;
     }
     EnterToContinue();
 }
 
+/* 현자 이벤트 */
 void TravelingSageEvent(Player* player) {
     printDivider("여행하는 현자");
     printf("낡은 회색 외투와 마치 바람이 안쪽에서 도는 듯한 지팡이를 든 자가 길가 바위를 의자 삼아 앉아 있습니다.\n");
     printf("그는 눈을 뜬 채 조용히 당신을 ‘읽고’ 있는 듯한 느낌을 줍니다.\n");
-    printf("1) 수수께끼 풀이(Int 13) 2) 체력 수행(Def 13) 3) 예의 있는 인사(Dex 10) 4) 무시\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    if (c==1) {
-        if (StatCheck("지능", player->Int, 13)) { printf("그가 미소를 지으며 희미한 룬 단편을 설명해줍니다. Int +2\n"); player->Int +=2; }
+    printf("1) 수수께끼 풀이(Int 13)\n");
+    printf("2) 체력 수행(Def 13)\n");
+    printf("3) 예의 있는 인사(Dex 10)\n");
+    printf("4) 무시\n");
+    printf("> ");
+    int c; scanf("%d", &c); while (getchar() != '\n');
+    if (c == 1) {
+        if (StatCheck("지능", player->Int, 13)) { printf("그가 미소를 지으며 희미한 룬 단편을 설명해줍니다. Int +2\n"); player->Int += 2; }
         else printf("단어 조각이 서로 맞물리지 않습니다. 그는 고개를 끄덕이며 말없이 책을 다시 폈습니다.\n");
-    } else if (c==2) {
-        if (StatCheck("방어", player->Def, 13)) { printf("식지 않은 호흡을 조절하며 고된 버티기를 완주했습니다. 최대 HP +10\n"); player->maxHp +=10; player->hp +=10; }
-        else { printf("근육이 떨려 더 진행 불가. HP -8\n"); player->hp -=8; if(player->hp<0) player->hp=0; }
-    } else if (c==3) {
-        if (StatCheck("민첩", player->Dex, 10)) { printf("절제되고 간결한 인사가 호감으로 이어졌습니다. Str +1\n"); player->Str+=1; }
+    }
+    else if (c == 2) {
+        if (StatCheck("방어", player->Def, 13)) { printf("식지 않은 호흡을 조절하며 고된 버티기를 완주했습니다. 최대 HP +10\n"); player->maxHp += 10; player->hp += 10; }
+        else { printf("근육이 떨려 더 진행 불가. HP -8\n"); player->hp -= 8; if (player->hp < 0) player->hp = 0; }
+    }
+    else if (c == 3) {
+        if (StatCheck("민첩", player->Dex, 10)) { printf("절제되고 간결한 인사가 호감으로 이어졌습니다. Str +1\n"); player->Str += 1; }
         else printf("어색한 몸짓, 그는 다시 책으로 시선을 돌립니다.\n");
-    } else {
+    }
+    else {
         printf("당신은 조용히 지나칩니다. 바람이 살짝 방향을 바꾸는 느낌만 남습니다.\n");
     }
     EnterToContinue();
 }
 
+/* 운석 파편 이벤트 */
 void MeteorShardEvent(Player* player) {
     printDivider("운석 파편");
     printf("타버린 흙덩어리 중앙에 유약처럼 반짝이는 운석 조각이 식어가며 희미한 열기를 냅니다.\n");
     printf("그 주위 공기는 현실과 약간 어긋난 것처럼 울렁거립니다.\n");
-    printf("1) 맨손으로 집는다(Def 14) 2) 깨본다(Str 13) 3) 분석(Int 13) 4) 그냥 둔다\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    if (c==1) {
-        if (StatCheck("방어", player->Def, 14)) { printf("타오르는 열을 견디며 파편의 에너지를 흡수했습니다. Def +1, 최대HP +5\n"); player->Def +=1; player->maxHp +=5; player->hp +=5; }
-        else { printf("뜨거운 충격이 손바닥을 태웁니다. HP -12\n"); player->hp -=12; if(player->hp<0) player->hp=0; }
-    } else if (c==2) {
-        if (StatCheck("힘", player->Str, 13)) { printf("균열을 내어 내부 코어를 추출했습니다. Str +2\n"); player->Str +=2; }
-        else { printf("반동이 손목을 때렸습니다. HP -6\n"); player->hp -=6; if(player->hp<0) player->hp=0; }
-    } else if (c==3) {
-        if (StatCheck("지능", player->Int, 13)) { printf("미세한 파형을 해독해 구조를 기록했습니다. Int +2\n"); player->Int +=2; }
-        else printf("패턴이 흐트러져 의미를 잡지 못했습니다.\n");
-    } else {
-        printf("당신은 간섭하지 않고 길을 계속합니다.\n");
+    printf("1) 맨손으로 집는다(Def 14)\n");
+    printf("2) 깨본다(Str 13)\n");
+    printf("3) 분석(Int 13)\n");
+    printf("4) 그냥 둔다\n");
+    printf("> ");
+
+    int c;
+    if (scanf("%d", &c) != 1) {
+        while (getchar() != '\n');
+        printf("입력 오류.\n");
+        EnterToContinue();
+        return;
     }
-    EnterToContinue();
-}
+    while (getchar() != '\n');
 
-/* ROAD 디스패처 */
-void Event_Road(Player* player) {
-    printDivider("길거리 (Road)");
-    printf("갈라진 자갈과 발자국 흔적이 뒤섞인 길. 바람은 주변 수풀의 잎을 뒤집으며 작은 짐승들의 경계심을 건드립니다.\n");
-    printf("오늘도 이 길 위에서 당신은 성장하거나, 상처받거나, 아무 일도 없이 지나갈 것입니다.\n");
-
-    int townCooldown = 5, caveCooldown = 6;
-    int ev, attempts = 0;
-    while (1) {
-        ev = rand()%12;
-        if (ev == player->lastRoadEvent) { attempts++; if (attempts > 50) { ev = 4; break; } continue; }
-        if (ev == 5 && player->turnCount - player->lastTownTurn < townCooldown) { attempts++; if (attempts > 50) { ev = 4; break; } continue; }
-        if (ev == 3 && player->turnCount - player->lastCaveTurn < caveCooldown) { attempts++; if (attempts > 50) { ev = 4; break; } continue; }
+    switch (c) {
+    case 1:
+        if (StatCheck("방어", player->Def, 14)) {
+            printf("타오르는 열을 견디며 파편의 에너지를 흡수했습니다. Def +1, 최대HP +5\n");
+            player->Def += 1; player->maxHp += 5; player->hp += 5;
+            if (player->hp > player->maxHp) player->hp = player->maxHp;
+        }
+        else {
+            printf("뜨거운 충격이 손바닥을 태웁니다. HP -12\n");
+            player->hp -= 12; if (player->hp < 0) player->hp = 0;
+        }
+        break;
+    case 2:
+        if (StatCheck("힘", player->Str, 13)) {
+            printf("균열을 내어 내부 코어를 추출했습니다. Str +2\n");
+            player->Str += 2;
+        }
+        else {
+            printf("반동이 손목을 때렸습니다. HP -6\n");
+            player->hp -= 6; if (player->hp < 0) player->hp = 0;
+        }
+        break;
+    case 3:
+        if (StatCheck("지능", player->Int, 13)) {
+            printf("미세한 파형을 해독해 구조를 기록했습니다. Int +2\n");
+            player->Int += 2;
+        }
+        else {
+            printf("패턴이 흐트러져 의미를 잡지 못했습니다.\n");
+        }
+        break;
+    case 4:
+        printf("당신은 간섭하지 않고 길을 계속합니다.\n");
+        break;
+    default:
+        printf("판단을 망설인 사이 에너지가 흩어졌습니다. 아무 일도 일어나지 않습니다.\n");
         break;
     }
-
-    switch (ev) {
-        case 0: TreasureEvent(player); break;
-        case 1: TrapEvent(player); break;
-        case 2: FondEvent(player); break;
-        case 3: player->lastCaveTurn = player->turnCount; RoadEvent_CaveEntrance(player); break;
-        case 4: printDivider("평화로운 길"); printf("잠시 아무 위협도 없는 구간. 잔잔한 호흡이 안쪽 근육을 풀어줍니다.\n"); EnterToContinue(); break;
-        case 5: player->lastTownTurn = player->turnCount; RoadEvent_SmallTownEntrance(player); break;
-        case 6: FindFood(player); break;
-        case 7: if (player->heardLegend && !player->hasHolySword) RoadEvent_ForestEntrance(player); else Encounter_goblin(player); break;
-        case 8: FallenTreeEvent(player); break;
-        case 9: BanditAmbushEvent(player); break;
-        case 10: TravelingSageEvent(player); break;
-        case 11: MeteorShardEvent(player); break;
-    }
-    player->lastRoadEvent = ev;
+    EnterToContinue();
 }
 
-/* 동굴 탐험 */
-void Event_Cave(Player* player) {
-    printDivider("동굴 탐험");
-    printf("동굴 입구 안쪽은 습하고 좁으며, 멀리 물이 떨어지는 규칙적인 반향이 심장박동처럼 공간을 메웁니다.\n");
-    printf("석벽의 광물질 결정들이 희미한 잿빛을 띠고, 맹렬한 기운이 아니라 지친 침묵이 감돌고 있습니다.\n");
+/* 야영 이벤트 */
+void CampingEvent(Player* player) {
+    printDivider("야영");
 
-    int ev = rand() % 9;
-    switch (ev) {
-    case 0: Cave_BatSwarm(player); break;
-    case 1: Cave_ShiningOre(player); break;
-    case 2: Cave_PoisonMist(player); break;
-    case 3: Cave_DeadAdventurer(player); break;
-    case 4: Cave_StoneGolem(player); break;
-    case 5: Cave_FallingFloor(player); break;
-    case 6: Cave_UndergroundLake(player); break;
-    case 7: Cave_AncientCarving(player); break;
-    case 8: Cave_DeadGuard(player); break;     // ★ 추가
+    printf("해가 기울어 주변이 점점 어두워지고 있습니다.\n");
+    printf("숲길에는 긴 그림자만 남았고, 더 이상 이동하기엔 위험해 보입니다.\n");
+    printf("오늘은 이 근처에서 야영을 준비해야 할 것 같습니다.\n\n");
+
+	// 캠핑 장비 보유 여부 확인
+    int hasGear = 0;
+    for (int i = 0; i < 100; i++) {
+        if (player->inventory[i] && strcmp(player->inventory[i], "캠핑 장비") == 0) {
+            hasGear = 1;
+            break;
+        }
     }
 
-    printf("\n(엔터를 눌러 동굴을 빠져나갑니다...)");
+	// 캠핑 장비 보유 시 안정적인 야영
+    if (hasGear) {
+        printf("캠핑 장비를 사용해 안정적으로 야영을 준비합니다.\n");
+        int heal = 40;
+        player->hp += heal;
+        if (player->hp > player->maxHp) player->hp = player->maxHp;
+        printf("편안한 휴식을 취했습니다. HP +%d (%d/%d)\n", heal, player->hp, player->maxHp);
+
+        // 장비 파손 확률
+        int broken = rand() % 100;
+        if (broken < 10) {
+            printf("밤사이 사고가 발생해 캠핑 장비가 파손되었습니다.\n");
+            for (int i = 0; i < 100; i++) {
+                if (player->inventory[i] && strcmp(player->inventory[i], "캠핑 장비") == 0) {
+                    free(player->inventory[i]);
+                    player->inventory[i] = NULL;
+                    break;
+                }
+            }
+        }
+    }
+	// 캠핑 장비 미보유 시 위험 요소
+    else {
+        printf("장비가 없어 적당한 자리를 찾기 위해 판단이 필요합니다.\n");
+        printf("어떤 방법으로 야영을 시도하시겠습니까?\n\n");
+
+        printf("1) 주변 지형을 살펴 민첩하게 안전한 곳을 찾는다.\n");
+        printf("2) 지식을 활용해 안정적인 장소를 판단한다.\n");
+        printf("> ");
+
+        int choice;
+        scanf("%d", &choice);
+        while (getchar() != '\n');
+
+        int difficulty = 12;
+        int success = 0;
+
+        switch (choice) {
+        case 1:
+            printf("주변 지형을 빠르게 살펴봅니다...\n");
+            success = StatCheck("민첩", player->Dex, difficulty);
+            break;
+        case 2:
+            printf("환경을 분석해 안전한 장소를 찾습니다...\n");
+            success = StatCheck("지능", player->Int, difficulty);
+            break;
+        default:
+            printf("올바르지 않은 선택입니다. 민첩 판정을 진행합니다.\n");
+            success = StatCheck("민첩", player->Dex, difficulty);
+            break;
+        }
+
+        if (success) {
+            printf("안전한 장소를 확보하고 조용히 휴식을 취합니다.\n");
+            int heal = 20;
+            player->hp += heal;
+            if (player->hp > player->maxHp)
+                player->hp = player->maxHp;
+            printf("HP +%d (%d/%d)\n", heal, player->hp, player->maxHp);
+        }
+        else {
+            printDivider("곰 습격");
+            printf("야영 도중 갑작스러운 곰의 습격을 받았습니다!\n");
+            Enemy bear;
+            initEnemy(&bear, "야생 곰", 120, 15, 0);
+            battle(player, &bear);
+        }
+    }
+    player->lastCampingTurn = player->turnCount;
     EnterToContinue();
-    player->location = LOC_ROAD;
+}
+
+/* Cave 이벤트 */
+void Event_Cave(Player* player) {
+    printDivider("동굴 탐험");
+
+    /* 깊이별 안내 멘트 설정 */
+    char* depthName = "";
+    char* depthDesc = "";
+
+    if (player->caveDepth == 1) {
+        depthName = "지하 1층 [입구]";
+        depthDesc = "축축한 이끼 냄새가 나고, 박쥐들의 울음소리가 희미하게 들립니다.";
+    }
+    else if (player->caveDepth == 2) {
+        depthName = "지하 2층 [심층]";
+        depthDesc = "빛이 거의 들어오지 않으며, 바닥이 불안정하게 흔들립니다.";
+    }
+    else {
+        depthName = "지하 3층 [보스 룸]";
+        depthDesc = "거대한 진동과 함께 무거운 기계음이 들려옵니다. 강한 적이 있습니다.";
+    }
+
+    printf("[ 현재 위치: %s ]\n", depthName);
+    printf("%s\n\n", depthDesc);
+
+    printf("1) 앞으로 나아간다 (탐험 진행)\n");
+    printf("2) 밖으로 나간다 (포기 및 도로 복귀)\n");
+    printf("> ");
+
+    int choice;
+    if (scanf("%d", &choice) != 1) {
+        while (getchar() != '\n');
+        return;
+    }
+    while (getchar() != '\n');
+
+    /* 동굴 탈출 */
+    if (choice == 2) {
+        printf("당신은 위험을 무릅쓰지 않고 조심스럽게 동굴 밖으로 나갑니다.\n");
+        player->location = LOC_ROAD;
+        player->caveDepth = 0; // 깊이 초기화
+        EnterToContinue();
+        return;
+    }
+
+    /* 탐험 진행 */
+    if (choice != 1) {
+        printf("망설이는 사이 시간이 흘렀습니다.\n");
+        EnterToContinue();
+        return;
+    }
+
+    printf("\n랜턴을 비추며 어둠 속으로 한 걸음 더 내딛습니다...\n");
+    EnterToContinue();
+
+    /* 일반 함정, 약한 몬스터 */
+    if (player->caveDepth == 1) {
+        int r = rand() % 3;
+        switch (r) {
+        case 0:
+            Cave_BatSwarm(player);
+            break;   // 박쥐 (Dex 판정)
+        case 1:
+            Cave_PoisonMist(player); 
+            break; // 독 안개 (Int 판정)
+        case 2:
+            Cave_ShiningOre(player); 
+            break; // 광석 채굴 (Str 판정)
+        }
+
+        // 플레이어가 살아있다면 다음 층으로 이동
+        if (player->hp > 0) {
+            printf("\n더 깊은 곳으로 이어지는 좁은 통로를 발견했습니다.\n");
+            printf("지하 2층으로 내려갑니다.\n");
+            player->caveDepth = 2;
+        }
+    }
+    /* === 2층: 심화 위험 요소 === */
+    else if (player->caveDepth == 2) {
+        int r = rand() % 3;
+        switch (r) {
+        case 0:
+            Cave_FallingFloor(player); 
+            break;    // 바닥 붕괴 (큰 피해)
+
+        case 1: 
+            Cave_UndergroundLake(player);
+            break; // 지하 호수 (회복 or 독)
+
+        case 2: 
+            Cave_DeadAdventurer(player); 
+            break;  // 시체 조사 (언데드 or 템)
+        }
+
+        if (player->hp > 0) {
+            printf("\n거대한 돌문이 앞을 막고 있습니다. 문 틈으로 붉은 안광이 보입니다.\n");
+            printf("지하 3층(보스)으로 진입합니다.\n");
+            player->caveDepth = 3;
+        }
+    }
+    /* === 3층: 보스전 & 보상 === */
+    else {
+        printf("어둠 속에서 바위들이 뭉쳐 거대한 형상을 이룹니다!\n");
+        printf("보스 몬스터 [문지기 골렘]이 나타났습니다!\n");
+
+        // 문지기 보스전
+        Enemy boss;
+        initEnemy(&boss, "문지기 골렘", 240, 15, 50);
+        battle(player, &boss);
+
+        // 승리 시 보상 처리
+        if (player->hp > 0) {
+            printDivider("동굴 정복!");
+            printf("골렘이 무너져 내린 잔해 속에서 반짝이는 물건을 발견했습니다.\n");
+
+            if (player->hasCityPass) {
+                // 혹시라도 이미 가지고 있는 경우 (방어 코드)
+                printf("이미 가지고 있는 [대도시 출입증]입니다.\n");
+            }
+            else {
+                printf("실종된 경비병의 유품인 [대도시 출입증]을 획득했습니다!\n");
+                printf("이제 검문소를 통과하여 대도시로 들어갈 수 있습니다.\n");
+                player->hasCityPass = 1; // [중요] 출입증 획득 처리
+            }
+
+            printf("\n목표를 달성했습니다. 동굴 입구로 귀환합니다.\n");
+
+            // 위치를 도로로 변경하고 깊이 초기화
+            player->location = LOC_ROAD;
+            player->caveDepth = 0;
+        }
+        else {
+            // 패배 시 (main 루프에서 게임 오버 처리됨)
+            printf("눈앞이 캄캄해집니다...\n");
+        }
+    }
+
+    EnterToContinue();
 }
 
 void Cave_BatSwarm(Player* player) {
-    printDivider("박쥐 무리 습격!");
-    printf("천장 그늘에서 검은 물결이 부서지듯 쏟아져 내려 소음과 날개 부딪힘이 방향 감각을 찢어 놓습니다.\n");
-    int damage = 5 + rand()%6;
-    if (player->Dex >= 7) {
-        printf("균형을 낮춰 회피하며 공격각을 최소화했습니다. (피해 -5)\n");
-        damage -= 5; if (damage < 0) damage = 0;
+    printDivider("박쥐 떼 습격");
+    printf("천장에 매달려 있던 박쥐 떼가 랜턴 빛에 놀라 일제히 날아듭니다!\n");
+    printf("날카로운 발톱과 이빨이 당신을 스치고 지나갑니다.\n");
+
+    if (player->Dex >= 8) {
+        printf("당신은 날렵하게 몸을 숙여 박쥐 떼를 피했습니다. (피해 없음)\n");
     }
-    player->hp -= damage; if (player->hp < 0) player->hp = 0;
-    printf("HP -%d (현재 HP: %d)\n", damage, player->hp);
+    else {
+        int dmg = 5 + rand() % 6;
+        printf("피할 공간이 부족했습니다! 박쥐들에게 긁혔습니다. HP -%d\n", dmg);
+        player->hp -= dmg;
+        if (player->hp < 0) player->hp = 0;
+    }
     EnterToContinue();
 }
 
 void Cave_ShiningOre(Player* player) {
-    printDivider("반짝이는 광석");
-    printf("벽면에 파란-은빛 결정이 박혀 있고 주위는 다른 광물과 달리 매끄러운 연마면처럼 반사합니다.\n");
-    printf("채굴을 시도합니다...\n");
-    if (player->Str >= 7) {
-        int gold = 40 + rand()%31;
-        printf("충분한 파쇄력으로 결정을 분리했습니다. 골드 +%d\n", gold);
-        player->gold += gold;
-    } else {
-        printf("근력 부족으로 균열만 만들다 붕괴를 유발했습니다. HP -10\n");
-        player->hp -= 10; if (player->hp < 0) player->hp = 0;
+    printDivider("빛나는 광석");
+    printf("동굴 벽면에 희미하게 빛나는 광맥이 보입니다.\n");
+    printf("단단한 바위 틈에 박혀있어 힘으로 캐내야 할 것 같습니다.\n");
+
+    printf("1) 캐낸다 (Str 8 이상 권장)\n");
+    printf("2) 그냥 지나간다\n");
+    printf("> ");
+
+    int c;
+    scanf("%d", &c);
+    while (getchar() != '\n');
+
+    if (c == 1) {
+        if (player->Str >= 8) {
+            int gold = 30 + rand() % 21;
+            printf("강한 힘으로 바위를 부수고 광석을 채굴했습니다!\n");
+            printf("상점에 팔 수 있는 귀한 광석입니다. (가치: %d 골드)\n", gold);
+            player->gold += gold;
+        }
+        else {
+            printf("바위가 너무 단단합니다. 곡괭이가 튕겨나가며 손목을 다쳤습니다.\n");
+            printf("HP -5\n");
+            player->hp -= 5;
+            if (player->hp < 0) player->hp = 0;
+        }
+    }
+    else {
+        printf("무리하지 않고 지나갑니다.\n");
     }
     EnterToContinue();
 }
@@ -481,8 +896,9 @@ void Cave_PoisonMist(Player* player) {
     printf("바닥 틈에서 초록빛 기체가 낮게 흐르고 후각을 마비시키는 자극이 서서히 번집니다.\n");
     if (player->Int >= 7) {
         printf("바람 흐름을 읽어 상대적으로 맑은 라인을 찾아 이동합니다. 피해 없음.\n");
-    } else {
-        int damage = 12 + rand()%9;
+    }
+    else {
+        int damage = 12 + rand() % 9;
         printf("기관지가 따끔거리고 어지러움이 몰려옵니다. HP -%d\n", damage);
         player->hp -= damage; if (player->hp < 0) player->hp = 0;
     }
@@ -492,19 +908,23 @@ void Cave_PoisonMist(Player* player) {
 void Cave_DeadAdventurer(Player* player) {
     printDivider("버려진 모험가의 시체");
     printf("낡은 가죽 갑옷과 금속 버클이 부식된 채 엎드려 있습니다. 주변엔 긁힌 흔적과 빨리 마른 혈흔.\n");
-    printf("1. 조사한다  2. 무시한다\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
+    printf("1) 조사한다\n");
+    printf("2) 무시한다\n");
+    printf("> ");
+    int c; scanf("%d", &c); while (getchar() != '\n');
     if (c == 1) {
-        int r = rand()%4;
+        int r = rand() % 4;
         if (r == 0) {
             printf("찰나의 마력 잔류가 깨어나 뒤틀린 기운이 형체를 재구성합니다! 언데드가 일어섭니다!\n");
-            Enemy e; initEnemy(&e,"언데드 모험가",30,6,40);
-            battle(player,&e);
-        } else {
-            printf("손때 묻은 작은 주머니에서 사용 가능한 회복 물약을 발견했습니다. 'HP 포션' 획득.\n");
-            addItem(player,"HP 포션");
+            Enemy e; initEnemy(&e, "언데드 모험가", 90, 12, 40);
+            battle(player, &e);
         }
-    } else {
+        else {
+            printf("손때 묻은 작은 주머니에서 사용 가능한 회복 물약을 발견했습니다. 'HP 포션' 획득.\n");
+            addItem(player, "HP 포션");
+        }
+    }
+    else {
         printf("불쾌한 잔류 기운을 건드리지 않기로 하고 발길을 돌립니다.\n");
     }
     EnterToContinue();
@@ -512,9 +932,9 @@ void Cave_DeadAdventurer(Player* player) {
 
 void Cave_StoneGolem(Player* player) {
     printDivider("돌 골렘");
-    printf("벽과 바닥이 솟구쳐 한 덩어리로 결합되더니 눈에 해당하는 부분이 희미한 황토빛을 띱니다.\n");
-    Enemy golem; initEnemy(&golem,"돌 골렘",60,10,80);
-    battle(player,&golem);
+    printf("벽과 바닥이 솟구쳐 한 덩어리로 결합되더니 눈에 해당하는 부분이 희미한 황토빛을 띕니다.\n");
+    Enemy golem; initEnemy(&golem, "돌 골렘", 150, 15, 80);
+    battle(player, &golem);
     if (player->hp > 0) {
         printf("광물 조직이 붕괴되며 단단한 파편이 남습니다. 방어력 +1\n");
         player->Def += 1;
@@ -527,8 +947,9 @@ void Cave_FallingFloor(Player* player) {
     printf("무의식적으로 밟은 판상 구조가 ‘뚝’ 소리를 내며 하중을 견디지 못하고 꺼집니다.\n");
     if (player->Dex >= 7) {
         printf("순간적으로 가중치를 재분배하며 점프! 낙하를 피했습니다.\n");
-    } else {
-        int damage = 15 + rand()%6;
+    }
+    else {
+        int damage = 15 + rand() % 6;
         printf("균형을 잃고 심한 낙하 충격을 받았습니다. HP -%d\n", damage);
         player->hp -= damage; if (player->hp < 0) player->hp = 0;
     }
@@ -538,18 +959,23 @@ void Cave_FallingFloor(Player* player) {
 void Cave_UndergroundLake(Player* player) {
     printDivider("지하 호수");
     printf("검푸른 수면이 거의 숨 쉬듯 잔잔하게 맥동하며 별빛 없는 밤처럼 깊은 색을 띱니다.\n");
-    printf("물을 마시겠습니까? (1: 예, 2: 아니오) > ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
+    printf("물을 마시겠습니까?\n");
+    printf("1) 예\n");
+    printf("2) 아니오\n");
+    printf("> ");
+    int c; scanf("%d", &c); while (getchar() != '\n');
     if (c == 1) {
-        int r = rand()%2;
+        int r = rand() % 2;
         if (r == 0) {
             printf("맑은 미네랄이 체내 순환을 돕습니다. HP +20\n");
-            player->hp +=20; if (player->hp > player->maxHp) player->hp = player->maxHp;
-        } else {
-            printf("금속성 쓴맛과 함께 위가 뒤틀립니다. HP -10\n");
-            player->hp -=10; if (player->hp < 0) player->hp = 0;
+            player->hp += 20; if (player->hp > player->maxHp) player->hp = player->maxHp;
         }
-    } else {
+        else {
+            printf("금속성 쓴맛과 함께 위가 뒤틀립니다. HP -10\n");
+            player->hp -= 10; if (player->hp < 0) player->hp = 0;
+        }
+    }
+    else {
         printf("잠재된 위험을 피하고 지나갑니다.\n");
     }
     EnterToContinue();
@@ -561,7 +987,8 @@ void Cave_AncientCarving(Player* player) {
     if (player->Int >= 8) {
         printf("상징을 조합해 오래된 의식 구조를 해석했습니다. 지능 +1\n");
         player->Int += 1;
-    } else {
+    }
+    else {
         printf("단편이 있지만 의미망을 결합하기엔 정보가 부족합니다.\n");
     }
     EnterToContinue();
@@ -575,7 +1002,8 @@ void Cave_DeadGuard(Player* player) {
 
     printf("그의 허리 쪽 주머니가 반쯤 열려 있습니다.\n");
     printf("1) 조사한다\n");
-    printf("2) 건드리지 않는다\n> ");
+    printf("2) 건드리지 않는다\n");
+    printf("> ");
 
     int c;
     if (scanf("%d", &c) != 1) {
@@ -607,554 +1035,462 @@ void Cave_DeadGuard(Player* player) {
     EnterToContinue();
 }
 
-
-
-/* TOWN 허브 */
+/* =========================================================================
+ *  TOWN 허브 & 세부
+ * =========================================================================*/
 void Event_Town(Player* player) {
     int choice;
     while (1) {
         ClearScreen();
-        printDivider("마을 (Town - 허브)");
-        printf("이곳은 아직 버티고 있는 공동체입니다. 매일 조금씩 희망을 ‘유지’하는 사람들이 사는 곳.\n");
+        printDivider("작은 마을 (Outpost)");
+        printf("동굴 근처에 위치한 작은 마을입니다.\n");
+        printf("주민들은 불안해 보이지만, 모험가에게 필요한 최소한의 것들은 갖추고 있습니다.\n");
         printPlayerStatus(player);
-        printf("\n1 여관  2 노상 음식  3 상점  4 장터  5 자원봉사\n");
-        printf("6 대장간 7 광장 8 도박장 9 훈련장 10 전설 노인\n");
-        printf("11 떠난다 12 도서관 13 투기장 14 연금술 15 도둑 길드\n선택: ");
-        if (scanf("%d",&choice)!=1){ while(getchar()!='\n'); printf("잘못된 입력.\n"); EnterToContinue(); continue; }
-        while(getchar()!='\n');
-        switch(choice){
-            case 1: Town_Inn(player); break;
-            case 2: Town_StreetFood(player); break;
-            case 3: Town_Shop(player); break;
-            case 4: Town_MarketStall(player); break;
-            case 5: Town_Volunteer(player); break;
-            case 6: Town_Blacksmith(player); break;
-            case 7: Town_Square(player); break;
-            case 8: Town_Gamble(player); break;
-            case 9: Town_Training(player); break;
-            case 10: Town_Legend(player); break;
-            case 11: printf("당신은 다시 길을 선택합니다.\n"); EnterToContinue(); player->location = LOC_ROAD; return;
-            case 12: Town_Library(player); break;
-            case 13: Town_Arena(player); break;
-            case 14: Town_AlchemyLab(player); break;
-            case 15: Town_ThievesGuild(player); break;
-            default: printf("존재하지 않는 선택입니다.\n"); EnterToContinue(); break;
+
+        printf("\n[ 마을 메뉴 ]\n");
+        printf("1) 여관 (휴식: 10G)\n");       // HP 회복
+        printf("2) 잡화점 (물약/도구)\n");      // 포션, 캠핑장비 등
+        printf("3) 대장간 (장비 강화)\n");      // 공격력/방어력 강화
+        printf("4) 촌장님 댁 (정보)\n");        // 동굴 해금 트리거
+        printf("5) 마을을 떠난다\n");
+        printf("> ");
+
+        if (scanf("%d", &choice) != 1) {
+            while (getchar() != '\n');
+            continue;
         }
-        if (player->hp <= 0) { printf("당신은 마을에서 의식을 잃었습니다...\n"); EnterToContinue(); return; }
+        while (getchar() != '\n');
+
+        switch (choice) {
+        case 1:
+            Town_Inn(player);
+            break;
+        case 2:
+            Town_Shop(player);
+            break;
+        case 3:
+            Town_Blacksmith(player);
+            break;
+        case 4:
+            Town_Legend(player);
+            break;
+        case 5:
+            printf("채비를 마치고 마을 밖으로 나갑니다.\n");
+            EnterToContinue();
+            player->location = LOC_ROAD;
+            return;
+        default:
+            printf("잘못된 선택입니다.\n");
+            EnterToContinue();
+            break;
+        }
     }
 }
 
-/* TOWN 세부 (기존 단순 로직 + 서사 강화) */
+/* 세부 기능들 */
 void Town_Inn(Player* player) {
     printDivider("여관");
     printf("따뜻한 난로와 마른 허브 냄새가 배어 있는 작은 홀. 지친 여행객과 상인 둘이 낮은 목소리로 무역 얘기를 나눕니다.\n");
-    printf("1 묵는다(10골드, HP +40) 2 떠난다 > ");
-    int c; if (scanf("%d",&c)!=1){ while(getchar()!='\n'); printf("입력 오류.\n"); EnterToContinue(); return; } while(getchar()!='\n');
-    if (c==1){
+    printf("1) 묵는다(10골드, HP +40)\n");
+    printf("2) 떠난다\n");
+    printf("> ");
+    int c; if (scanf("%d", &c) != 1) { while (getchar() != '\n'); printf("입력 오류.\n"); EnterToContinue(); return; } while (getchar() != '\n');
+    if (c == 1) {
         if (player->gold < 10) printf("소지 골드가 부족합니다.\n");
         else {
-            player->gold -= 10; player->hp += 40; if(player->hp>player->maxHp) player->hp=player->maxHp;
+            player->gold -= 10; player->hp += 40; if (player->hp > player->maxHp) player->hp = player->maxHp;
             printf("깊은 수면 뒤 맑은 의식으로 깨어났습니다. HP 회복.\n");
         }
-    } else printf("당신은 여관을 나섭니다.\n");
-    EnterToContinue();
-}
-
-void Town_StreetFood(Player* player) {
-    printDivider("노상 음식점");
-    printf("휘황찬란하진 않지만 따끈한 국물에서 김이 피어오르고, 허기를 달래는 향신료가 코끝을 자극합니다.\n");
-    int cost=10, heal=20;
-    if (player->gold >= cost){
-        player->gold -= cost; player->hp += heal; if(player->hp>player->maxHp) player->hp=player->maxHp;
-        printf("허기를 괜찮은 맛으로 채웠습니다. (HP +%d, 골드 -%d)\n", heal, cost);
-    } else printf("주머니는 텅 비어 있고 허기는 잠시 더 지속됩니다.\n");
+    }
+    else
+        printf("당신은 여관을 나섭니다.\n");
     EnterToContinue();
 }
 
 void Town_Shop(Player* player) {
     printDivider("상점");
     printf("벽에는 모험가들이 남기다 팔고 간 물품들이 정렬되어 있고 상인은 상황을 예의주시하는 눈빛입니다.\n");
-    printf("1 포션(20) 2 힘의 반지(50) 3 캠핑 장비(40) 4 나가기 > ");
-    int sel; scanf("%d",&sel); while(getchar()!='\n');
-    if (sel==1){
-        if(player->gold>=20){ player->gold-=20; player->hp+=30; if(player->hp>player->maxHp) player->hp=player->maxHp; printf("붉은 액체가 온몸을 덥힙니다. HP +30\n"); }
+    printf("1) 포션(20)\n");
+    printf("2) 힘의 반지(50)\n");
+    printf("3) 캠핑 장비(40)\n");
+    printf("4) 나가기\n");
+    printf("> ");
+    int sel; scanf("%d", &sel); while (getchar() != '\n');
+    if (sel == 1) {
+        if (player->gold >= 20) {
+            player->gold -= 20;
+            addItem(player, "HP 포션");
+            printf("HP 포션을 구매했습니다!\n");
+        }
         else printf("골드 부족.\n");
-    } else if (sel==2){
-        if(player->gold>=50){ player->gold-=50; player->Str+=1; printf("손에 끼자 은은한 열이 전해집니다. 힘 +1\n"); }
+    }
+    else if (sel == 2) {
+        if (player->gold >= 50) {
+            player->gold -= 50; player->Str += 1;
+            printf("손에 끼자 은은한 열이 전해집니다. 힘 +1\n");
+        }
         else printf("골드 부족.\n");
-    } else if (sel==3){
-        if(player->gold>=40){ player->gold-=40; addItem(player,"캠핑 장비"); printf("야영 준비가 수월해질 것입니다.\n"); }
+    }
+    else if (sel == 3) {
+        if (player->gold >= 40) {
+            player->gold -= 40; addItem(player, "캠핑 장비");
+            printf("야영 준비가 수월해질 것입니다.\n");
+        }
         else printf("골드 부족.\n");
-    } else printf("거래 없이 상점을 나갑니다.\n");
-    EnterToContinue();
-}
-
-void Town_MarketStall(Player* player) {
-    printDivider("장터 노점");
-    printf("열악하지만 생활의 생동감이 남은 장터. 바람에 덜 마른 허브 다발과 손수 만든 장신구가 어설프게 진열되어 있습니다.\n");
-    printf("1 회복약(8) 2 낡은 단검(30) 3 허리띠(40) 4 나가기 > ");
-    int sel; if (scanf("%d",&sel)!=1){ while(getchar()!='\n'); printf("입력 오류.\n"); EnterToContinue(); return;} while(getchar()!='\n');
-    if(sel==1){ if(player->gold>=8){ player->gold-=8; player->hp+=15; if(player->hp>player->maxHp) player->hp=player->maxHp; printf("쓴맛 뒤 안정. HP +15\n"); } else printf("골드 부족.\n"); }
-    else if(sel==2){ if(player->gold>=30){ player->gold-=30; player->Str+=1; printf("닳은 손잡이가 손에 익습니다. 힘 +1\n"); } else printf("골드 부족.\n"); }
-    else if(sel==3){ if(player->gold>=40){ player->gold-=40; player->Def+=1; printf("허리를 지지하며 호흡이 안정됩니다. 방어 +1\n"); } else printf("골드 부족.\n"); }
-    else printf("빈 손으로 자리를 떠납니다.\n");
-    EnterToContinue();
-}
-
-void Town_Volunteer(Player* player) {
-    printDivider("자원봉사 센터");
-    printf("허름한 게시판에 손글씨로 적힌 요청들이 붙어 있습니다. 모두 ‘지금 당장’ 필요한 작은 일들.\n");
-    printf("1 돕는다 2 떠난다 > ");
-    int sel; if (scanf("%d",&sel)!=1){ while(getchar()!='\n'); printf("입력 오류.\n"); EnterToContinue(); return;} while(getchar()!='\n');
-    if(sel==1){
-        int r=rand()%3;
-        if(r==0){ player->Str+=1; printf("반복된 짐 운반이 근섬유를 자극했습니다. 힘 +1\n"); }
-        else if(r==1){ int g=15; player->gold+=g; printf("감사 인사와 함께 작은 사례금. 골드 +%d\n", g); }
-        else { player->Int+=1; printf("노인과의 대화 속에서 세밀한 표현을 배웠습니다. 지능 +1\n"); }
-    } else printf("당신은 도움을 미루고 발길을 돌립니다.\n");
+    }
+    else
+        printf("거래 없이 상점을 나갑니다.\n");
     EnterToContinue();
 }
 
 void Town_Blacksmith(Player* player) {
     printDivider("무기 제작소");
     printf("대장간 안은 금속 냄새와 숯의 열기로 가득합니다. 규칙적인 망치질이 일정한 리듬으로 귀를 두드립니다.\n");
-    printf("1 무기 강화(50) 2 방어구 강화(50) 3 떠난다 > ");
-    int sel; scanf("%d",&sel); while(getchar()!='\n');
-    if(sel==1){ if(player->gold>=50){ player->gold-=50; player->Str+=1; printf("대장장이가 당신의 무기를 연마했습니다! (힘 +1)\n"); } else printf("골드가 부족합니다.\n"); }
-    else if(sel==2){ if(player->gold>=50){ player->gold-=50; player->Def+=1; printf("대장장이가 당신의 갑옷을 보강했습니다! (방어 +1)\n"); } else printf("골드가 부족합니다.\n"); }
+    printf("1) 무기 강화(50)\n");
+    printf("2) 방어구 강화(50)\n");
+    printf("3) 떠난다\n");
+    printf("> ");
+    int sel; scanf("%d", &sel); while (getchar() != '\n');
+    if (sel == 1) { if (player->gold >= 50) { player->gold -= 50; player->Str += 1; printf("대장장이가 당신의 무기를 연마했습니다! (힘 +1)\n"); } else printf("골드가 부족합니다.\n"); }
+    else if (sel == 2) { if (player->gold >= 50) { player->gold -= 50; player->Def += 1; printf("대장장이가 당신의 갑옷을 보강했습니다! (방어 +1)\n"); } else printf("골드가 부족합니다.\n"); }
     else printf("대장간을 떠났습니다.\n");
     EnterToContinue();
 }
 
-void Town_GuardCheck(Player* player) {
-    printDivider("마을 경비대 점검");
-    printf("긴장한 경비가 여행자의 신분과 목적을 묻습니다. 주변에는 최근 실종 전단이 몇 장 붙어 있습니다.\n");
-    if (player->Dex >= 7) {
-        printf("침착하고 분명한 태도가 의심을 누그러뜨립니다. 별일 없이 통과.\n");
-    } else {
-        int penalty = rand()%2;
-        if(penalty==0){ int hpLoss = 5+rand()%6; printf("불필요하게 에너지를 소모했습니다. HP -%d\n", hpLoss); player->hp -= hpLoss; if(player->hp<0) player->hp=0; }
-        else { int goldLoss=5; if(player->gold<goldLoss) goldLoss=player->gold; printf("임시 통행료를 요구받았습니다. 골드 -%d\n", goldLoss); player->gold -= goldLoss; }
+/* Event.c - Town_Legend 함수 전체 교체 */
+
+void Town_Legend(Player* player) {
+    printDivider("촌장님 댁");
+
+    /* 1. 이미 출입증을 얻어 동굴 퀘스트를 깬 경우 */
+    if (player->hasCityPass) {
+        printf("촌장: \"오! 그 출입증을 찾아냈구만. 정말 대단한 실력이야.\"\n");
+        printf("촌장: \"자네 덕분에 죽은 경비병도 편히 눈을 감았을 걸세.\"\n");
+        printf("촌장: \"이제 대도시로 가서 자네의 뜻을 펼치게나.\"\n");
+        EnterToContinue();
+        return;
+    }
+
+    /* 2. 이미 소문을 들어서 동굴이 해금된 상태인 경우 (리마인드) */
+    if (player->knowsCave) {
+        printf("촌장: \"내가 말해준 [동굴]은 마을 밖 길거리에서 찾을 수 있을 걸세.\"\n");
+        printf("촌장: \"동굴 3층에 있는 몬스터가 [출입증]을 삼켰다는 소문이야.\"\n");
+        printf("촌장: \"부디 몸조심하게나.\"\n");
+        EnterToContinue();
+        return;
+    }
+
+    /* 3. 아직 소문을 모르는 경우 -> 5개 중 하나 랜덤 출력 */
+    int talk = rand() % 5;
+
+    switch (talk) {
+    case 0: /* 잡담: 농사 */
+        printf("촌장: \"올해는 가뭄이 들어서 농사가 걱정이구만...\"\n");
+        printf("촌장: \"자네도 밥은 굶지 말고 다니게. 건강이 최고야.\"\n");
+        printf("\n(촌장님은 곰방대를 태우며 한숨을 쉬십니다.)\n");
+        break;
+
+    case 1: /* 잡담: 날씨 */
+        printf("촌장: \"무릎이 쑤시는 걸 보니 곧 비가 오려나 보네.\"\n");
+        printf("촌장: \"내 무릎은 기상청보다 정확하다니까... 허허.\"\n");
+        printf("\n(촌장님은 무릎을 탁탁 두드리십니다.)\n");
+        break;
+
+    case 2: /* 잡담: 젊은이들 */
+        printf("촌장: \"마을의 젊은이들은 다들 성공하겠다며 대도시로 떠나버렸어.\"\n");
+        printf("촌장: \"마을에 남은 건 우리 같은 늙은이들 뿐이라네.\"\n");
+        printf("\n(촌장님은 쓸쓸한 표정으로 먼 산을 바라봅니다.)\n");
+        break;
+
+    case 3: /* 잡담: 왕국 정세 (복선) */
+        printf("촌장: \"들리는 소문으로는 국왕 폐하께서 [전설의 검]을 찾고 계신다더군.\"\n");
+        printf("촌장: \"마왕을 물리칠 유일한 방법이라나 뭐라나...\"\n");
+        printf("촌장: \"그런 게 정말 존재하기나 하는 건지 원...\"\n");
+        break;
+
+    case 4: /* [핵심] 퀘스트 시작: 동굴 소문 */
+        printf("촌장: \"...자네, 눈빛이 예사롭지 않구만. 혹시 대도시로 가려는가?\"\n");
+        printf("촌장: \"그렇다면 내 안타까운 이야기를 하나 해줌세.\"\n\n");
+
+        printf("촌장: \"얼마 전 경비병 하나가 마을 근처 [동굴]로 정찰을 나갔다가 실종됐다네.\"\n");
+        printf("촌장: \"그가 지니고 있던 [대도시 출입증]이 있다면 검문을 통과할 수 있을 걸세.\"\n");
+        printf("촌장: \"내 자네에게 동굴이 있는 곳을 알려주지.\"\n");
+
+        printf("\n[정보 획득] 동굴의 위치가 해금되었습니다!\n");
+        printf("이제 길거리 탐험 중 [동굴]을 발견할 수 있습니다.\n");
+
+        player->knowsCave = 1; /* [중요] 동굴 해금 트리거 */
+        break;
+    }
+
+    /* 아직 정보를 못 얻었다면 힌트 출력 */
+    if (talk != 4) {
+        printf("\n(촌장님은 하실 말씀이 더 있는 눈치입니다.)\n");
     }
     EnterToContinue();
 }
 
-void Town_Square(Player* player) {
-    printDivider("마을 광장");
-    printf("소박한 화단과 마른 샘터를 중심으로 아이들이 조심스럽게 공을 굴리고 상인들이 낮은 호객 음성을 냅니다.\n");
-    printf("1 인파 속을 걷는다 2 경비대 쪽을 본다 3 쉬어간다 4 떠난다 > ");
-    int sel; if (scanf("%d",&sel)!=1){ while(getchar()!='\n'); printf("입력 오류.\n"); EnterToContinue(); return;} while(getchar()!='\n');
-    if(sel==1){ Town_Pickpocket(player); return; }
-    else if(sel==2){ Town_GuardCheck(player); return; }
-    else if(sel==3){
-        int r=rand()%2;
-        if(r==0){ printf("짧은 휴식으로 미미한 활력이 돌아옵니다. HP +5\n"); player->hp +=5; if(player->hp>player->maxHp) player->hp=player->maxHp; }
-        else { int g=10; printf("땅에 떨어진 주머니를 발견. 골드 +%d\n", g); player->gold += g; }
-        EnterToContinue();
-    } else {
-        printf("광장을 벗어납니다.\n");
-        EnterToContinue();
-    }
-}
-
-void Town_Gamble(Player* player) {
-    printDivider("도박장");
-    printf("희미한 등불과 굴러다니는 주사위, 긴장과 체념이 뒤섞인 공기가 저택 지하의 뒷골목 냄새를 떠올리게 합니다.\n");
-    printf("베팅 선택: 1)10 2)20 3)50 4) 떠난다 > ");
-    int sel; scanf("%d",&sel); while(getchar()!='\n');
-    int bet=0;
-    if(sel==1) bet=10; else if(sel==2) bet=20; else if(sel==3) bet=50; else { printf("도박을 포기합니다.\n"); EnterToContinue(); return; }
-    if(player->gold < bet){ printf("골드 부족.\n"); EnterToContinue(); return; }
-    player->gold -= bet;
-    int playerDice = 1+rand()%6, dealerDice = 1+rand()%6;
-    printf("당신 주사위: %d / 딜러: %d\n", playerDice, dealerDice);
-    if (playerDice > dealerDice){ int win = bet*2; printf("운이 따라줍니다! 골드 +%d\n", win); player->gold += win; }
-    else if (playerDice == dealerDice){ printf("무승부. 베팅 환불.\n"); player->gold += bet; }
-    else printf("패배... 손실은 그대로입니다.\n");
-    EnterToContinue();
-}
-
-void Town_Training(Player* player) {
-    printDivider("훈련장");
-    printf("간이 표적과 모래주머니가 줄지어 놓여 있습니다. 반복은 진보를 만듭니다.\n");
-    printf("훈련 비용: 30골드 (관전은 무료)\n");
-    printf("1. 힘 훈련 (Str 판정 난이도 10, 성공 시 Str +1)\n");
-    printf("2. 민첩 훈련 (Dex 판정 난이도 10, 성공 시 Dex +1)\n");
-    printf("3. 지능 훈련 (Int 판정 난이도 10, 성공 시 Int +1)\n");
-    printf("4. 관전/분석 (Int 판정 난이도 11, 성공 시 Int +1, 실패 시 페널티 없음)\n");
-    printf("5. 떠난다\n> ");
-
-    int sel;
-    if (scanf("%d", &sel) != 1) {
-        while (getchar() != '\n');
-        printf("잘못된 입력입니다.\n");
-        EnterToContinue();
-        return;
-    }
-    while (getchar() != '\n');
-
-    if (sel == 5) {
-        printf("훈련장을 떠납니다.\n");
-        EnterToContinue();
-        return;
-    }
-
-    if (sel == 4) {
-        // 관전: 비용 없음
-        if (StatCheck("지능", player->Int, 11)) {
-            player->Int += 1;
-            printf("전술 흐름을 분석하여 새로운 통찰을 얻었습니다. Int +1\n");
-        } else {
-            printf("복잡한 패턴을 끝내 이해하지 못했습니다.\n");
-        }
-        EnterToContinue();
-        return;
-    }
-
-    if (sel < 1 || sel > 3) {
-        printf("유효하지 않은 선택입니다.\n");
-        EnterToContinue();
-        return;
-    }
-
-    int cost = 30;
-    if (player->gold < cost) {
-        printf("골드가 부족합니다. (필요: %d, 보유: %d)\n", cost, player->gold);
-        EnterToContinue();
-        return;
-    }
-
-    player->gold -= cost;
-
-    if (sel == 1) {
-        if (StatCheck("힘", player->Str, 10)) {
-            player->Str += 1;
-            printf("저항 훈련 성공! Str +1\n");
-        } else {
-            printf("근육이 피로 누적. 효과 없음.\n");
-        }
-    } else if (sel == 2) {
-        if (StatCheck("민첩", player->Dex, 10)) {
-            player->Dex += 1;
-            printf("리듬 훈련 성공! Dex +1\n");
-        } else {
-            printf("타이밍을 끝내 맞추지 못했습니다. 효과 없음.\n");
-        }
-    } else if (sel == 3) {
-        if (StatCheck("지능", player->Int, 10)) {
-            player->Int += 1;
-            printf("동작 분석 정리 성공! Int +1\n");
-        } else {
-            printf("집중이 흐트러져 통찰을 얻지 못했습니다.\n");
-        }
-    }
-
-    EnterToContinue();
-}
-
-void Town_Library(Player* player) {
-    printDivider("도서관");
-    printf("정적이 깔린 넓은 공간. 오래된 두루마리와 마법 서적들이 층층이 차곡하게 쌓여 있습니다.\n");
-    printf("사서로 보이는 인물이 조용히 고개를 끄덕이며 당신을 맞이합니다.\n");
-
-    printf("1) 고대 기록을 탐독한다(Int 판정 12)\n");
-    printf("2) 전투 기술서를 읽는다(Str 판정 11)\n");
-    printf("3) 민첩 교본을 읽는다(Dex 판정 11)\n");
-    printf("4) 떠난다\n> ");
-
-    int c;
-    if (scanf("%d", &c) != 1) { while (getchar() != '\n'); printf("입력 오류.\n"); EnterToContinue(); return; }
-    while (getchar() != '\n');
-
-    if (c == 1) {
-        if (StatCheck("지능", player->Int, 12)) {
-            printf("고대 문양의 해석에 성공! 심층적 통찰을 얻습니다. Int +2\n");
-            player->Int += 2;
-        }
-        else {
-            printf("복잡한 문자가 집중력을 흩뜨립니다. HP -5\n");
-            player->hp -= 5; if (player->hp < 0) player->hp = 0;
-        }
-    }
-    else if (c == 2) {
-        if (StatCheck("힘", player->Str, 11)) {
-            printf("전투 자세와 체중 이동 원리를 익혔습니다! Str +1\n");
-            player->Str += 1;
-        }
-        else {
-            printf("무리한 동작 재현으로 근육을 삐끗했습니다. HP -4\n");
-            player->hp -= 4; if (player->hp < 0) player->hp = 0;
-        }
-    }
-    else if (c == 3) {
-        if (StatCheck("민첩", player->Dex, 11)) {
-            printf("균형과 타이밍의 핵심을 파악했습니다. Dex +1\n");
-            player->Dex += 1;
-        }
-        else {
-            printf("동작 이해 실패로 책더미에 부딪혔습니다. HP -3\n");
-            player->hp -= 3; if (player->hp < 0) player->hp = 0;
-        }
-    }
-    else {
-        printf("당신은 도서관을 조용히 빠져나옵니다.\n");
-    }
-
-    EnterToContinue();
-}
-
-void Town_Arena(Player* player) {
-    printDivider("투기장");
-    printf("투박한 모래바닥과 거칠게 웃고 있는 전사들. 긴장감이 전장을 감쌉니다.\n");
-    printf("관장이 묻습니다: “승부 보러 왔나?”\n");
-
-    printf("전투 참가 비용: 20골드\n");
-    printf("1) 결투한다  2) 떠난다\n> ");
-
-    int c;
-    if (scanf("%d", &c) != 1) { while (getchar() != '\n'); printf("입력 오류.\n"); EnterToContinue(); return; }
-    while (getchar() != '\n');
-
-    if (c != 1) {
-        printf("투기장을 떠납니다.\n");
-        EnterToContinue();
-        return;
-    }
-
-    if (player->gold < 20) {
-        printf("골드가 부족합니다.\n");
-        EnterToContinue();
-        return;
-    }
-
-    player->gold -= 20;
-
-    Enemy fighter;
-    initEnemy(&fighter, "숙련된 전사", 45 + rand() % 11, 8 + rand() % 5, 40);
-
-    printf("상대 전사가 칼날을 세우며 앞으로 나옵니다!\n");
-    battle(player, &fighter);
-
-    if (player->hp > 0) {
-        printf("결투에서 승리했습니다! 보상: 골드 +70, 힘 +1\n");
-        player->gold += 70;
-        player->Str += 1;
-    }
-    else {
-        printf("전사는 마지막 일격을 멈추고 고개를 숙입니다.\n");
-        printf("“패배를 인정해라.”\n");
-    }
-    EnterToContinue();
-}
-
-void Town_AlchemyLab(Player* player) {
-    printDivider("연금술 작업장");
-    printf("향긋하면서도 위험한 냄새가 섞인 방. 곳곳에 끓어오르는 약병이 진동을 냅니다.\n");
-    printf("연금술사는 웃으며 말합니다: “재료를 섞어 볼 텐가?”\n");
-
-    printf("필요 재료: HP 포션 1개 + 골드 15\n");
-    printf("성공 시: 강화 포션 획득 (HP +50)\n");
-    printf("1) 합성  2) 떠난다\n> ");
-
-    int c;
-    if (scanf("%d", &c) != 1) { while (getchar() != '\n'); printf("입력 오류.\n"); EnterToContinue(); return; }
-    while (getchar() != '\n');
-
-    if (c != 1) {
-        printf("당신은 조용히 자리를 떠납니다.\n");
-        EnterToContinue();
-        return;
-    }
-
-    /* HP 포션 존재 여부 체크 */
-    int index = -1;
-    for (int i = 0; i < 100; i++) {
-        if (player->inventory[i] && strcmp(player->inventory[i], "HP 포션") == 0) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        printf("HP 포션이 없습니다.\n");
-        EnterToContinue();
-        return;
-    }
-    if (player->gold < 15) {
-        printf("골드가 부족합니다.\n");
-        EnterToContinue();
-        return;
-    }
-
-    player->gold -= 15;
-    free(player->inventory[index]);
-    player->inventory[index] = NULL;
-
-    /* 합성 판정 */
-    if (StatCheck("지능", player->Int, 12)) {
-        printf("비율 조정 성공! 새로운 강화 포션을 획득합니다.\n");
-        addItem(player, "강화 포션");
-    }
-    else {
-        int explosion = 10 + rand() % 11;
-        printf("합성이 폭발했습니다! HP -%d\n", explosion);
-        player->hp -= explosion;
-        if (player->hp < 0) player->hp = 0;
-    }
-    EnterToContinue();
-}
-
-void Town_ThievesGuild(Player* player) {
-    printDivider("도둑 길드");
-    printf("비좁은 골목 뒤 숨겨진 문. 은밀한 기운이 도는 방 안에서 그림자들이 움직입니다.\n");
-    printf("길드 우두머리가 말합니다. “기량을 시험받고 싶나?”\n");
-
-    printf("1) 은신 능력 시험(Dex 12)\n");
-    printf("2) 함정 해제 시험(Int 12)\n");
-    printf("3) 무력 시험(Str 12) → 전투 발생\n");
-    printf("4) 그냥 떠난다\n> ");
-
-    int c;
-    if (scanf("%d", &c) != 1) { while (getchar() != '\n'); printf("입력 오류.\n"); EnterToContinue(); return; }
-    while (getchar() != '\n');
-
-    if (c == 1) {
-        if (StatCheck("민첩", player->Dex, 12)) {
-            printf("어둠에 녹아 사라지는 발걸음. 보상: Dex +1, 골드 +20\n");
-            player->Dex += 1;
-            player->gold += 20;
-        }
-        else {
-            printf("발각되었습니다! 어둠 속에서 단검이 날아옵니다. HP -8\n");
-            player->hp -= 8; if (player->hp < 0) player->hp = 0;
-        }
-    }
-    else if (c == 2) {
-        if (StatCheck("지능", player->Int, 12)) {
-            printf("정교한 손놀림으로 함정을 해제했습니다. Int +1\n");
-            player->Int += 1;
-        }
-        else {
-            printf("오작동! 폭탄이 터집니다. HP -10\n");
-            player->hp -= 10; if (player->hp < 0) player->hp = 0;
-        }
-    }
-    else if (c == 3) {
-        printf("길드 전사가 시험 삼아 칼을 뽑습니다!\n");
-        Enemy thief;
-        initEnemy(&thief, "도둑 길드 전사", 35 + rand() % 11, 7 + rand() % 4, 30);
-        battle(player, &thief);
-
-        if (player->hp > 0) {
-            printf("무력 시험에서 승리했습니다! Str +1, 골드 +40\n");
-            player->Str += 1;
-            player->gold += 40;
-        }
-    }
-    else {
-        printf("길드는 다시 어둠 속으로 사라집니다.\n");
-    }
-
-    EnterToContinue();
-}
-
+/* 대도시 이벤트 */
 void Event_BigCity(Player* player) {
     int choice;
-
     while (1) {
         ClearScreen();
-        printDivider("대도시 (Hub)");
-        printf("높은 성벽과 수많은 사람들, 상인과 모험가, 학자들이 뒤섞여 움직이는 거대한 도시입니다.\n");
-        printf("이곳에서는 더 강력한 장비와 심화된 훈련, 정보와 마법을 얻을 수 있습니다.\n");
+        printDivider("대도시");
+        printf("모든 것이 모여있는 대륙의 중심입니다.\n");
+        printf("마을과는 비교할 수 없는 수준의 시설들을 이용할 수 있습니다.\n");
         printPlayerStatus(player);
 
-        printf("\n1 대성당(Temple)\n");
-        printf("2 상급 상점(Premium Shop)\n");
-        printf("3 마법 길드(Mage Guild)\n");
-        printf("4 모험가 길드(Adventurer Guild)\n");
-        printf("5 공원(Park)\n");
-        printf("6 도시에서 나간다(도로로 귀환)\n");
-        printf("선택: ");
+        printf("\n[ 편의 시설 ]\n");
+        printf("1) 그랜드 호텔\n");
+        printf("2) 대도시 백화점\n");     // 기존 상급 상점 강화
+        printf("3) 왕실 대장간\n");       // [신규] 마을 대장간 상위호환
+
+        printf("\n[ 도시 구역 ]\n");
+        printf("4) 왕궁\n");
+        printf("5) 대성당\n");
+        printf("6) 마법 길드\n");
+        printf("7) 모험가 길드\n");
+
+        printf("\n[ 유흥 지구 ]\n");
+        printf("8) 로얄 카지노\n");
+        printf("9) 지하 투기장\n");
+        printf("10) 도시를 떠난다\n");
+        printf("> ");
 
         if (scanf("%d", &choice) != 1) {
-            while (getchar() != '\n');
-            printf("잘못된 입력입니다.\n");
-            EnterToContinue();
-            continue;
+            while (getchar() != '\n'); continue;
         }
         while (getchar() != '\n');
 
         switch (choice) {
-        case 1: BigCity_Temple(player); break;
-        case 2: BigCity_PremiumShop(player); break;
-        case 3: BigCity_MageGuild(player); break;
-        case 4: BigCity_AdventurerGuild(player); break;
-        case 5: BigCity_Park(player); break;
-        case 6:
-            printf("당신은 다시 성문을 나와 길로 돌아갑니다.\n");
+        case 1:
+            BigCity_Inn(player);
+            break;
+        case 2: 
+            BigCity_PremiumShop(player); 
+            break;
+        case 3:
+            BigCity_Blacksmith(player);
+            break;
+        case 4:
+            BigCity_RoyalPalace(player);
+            break;
+        case 5: 
+            BigCity_Temple(player);
+            break;
+        case 6: 
+            BigCity_MageGuild(player);
+            break;
+        case 7:
+            BigCity_AdventurerGuild(player); 
+            break;
+        case 8: 
+            BigCity_Gamble(player); 
+            break;
+        case 9: 
+            BigCity_Arena(player); 
+            break;
+        case 10:
+            printf("성문을 나섭니다.\n");
             player->location = LOC_ROAD;
             EnterToContinue();
             return;
-        default:
-            printf("존재하지 않는 선택입니다.\n");
-            EnterToContinue();
+        default: 
             break;
         }
 
-        if (player->hp <= 0) {
-            printf("당신은 대도시 한복판에서 의식을 잃었습니다...\n");
-            EnterToContinue();
-            return;
-        }
+        if (player->hp <= 0) return;
     }
 }
 
+/* 대장간 이벤트 */
+void BigCity_Blacksmith(Player* player) {
+    printDivider("왕실 대장간");
+    printf("왕궁에 납품하는 장인들이 모인 곳입니다. 마을 대장간과는 차원이 다른 기술력을 자랑합니다.\n");
+    printf("더 비싸지만, 훨씬 강력한 장비로 개조해줍니다.\n\n");
 
-/* ====== 마왕성 개별 이벤트 복구/추가 시작 ====== */
-void Castle_CursedHall(Player* player) {
-    printDivider("저주받은 회랑");
-    printf("뒤틀린 문양이 벽을 기어다니며 정신을 긁어냅니다.\n");
-    printf("1) 의지로 버틴다(Def 13) 2) 문양을 해독(Int 13) 3) 빠르게 통과(Dex 12) 4) 머뭇거린다\n> ");
+    printf("1) 무기 정밀 개조 (100G / 힘 +2)\n");
+    printf("2) 갑옷 특수 보강 (100G / 방어 +2)\n");
+    printf("3) 나가기\n");
+    printf("> ");
+
     int c;
-    if (scanf("%d", &c) != 1) {
-        while (getchar() != '\n');
-        printf("입력 오류.\n");
-        EnterToContinue();
-        return;
-    }
-    while (getchar() != '\n');
+    scanf("%d", &c); while (getchar() != '\n');
 
     if (c == 1) {
-        if (StatCheck("방어", player->Def, 13)) {
-            printf("정신적 압박을 견뇌내며 내성을 강화했습니다. Def +1\n");
-            player->Def += 1;
-        } else {
-            printf("속삭임이 마음을 후벼팝니다. HP -12\n");
-            player->hp -= 12; if (player->hp < 0) player->hp = 0;
+        if (player->gold >= 100) {
+            player->gold -= 100;
+            player->Str += 2;
+            printf("장인이 당신의 무기를 정밀하게 갈고 닦았습니다! 공격력이 크게 상승합니다. (Str +2)\n");
         }
-    } else if (c == 2) {
-        if (StatCheck("지능", player->Int, 13)) {
-            printf("문양의 반복 패턴을 추출, 저주를 부분 중화. Int +1\n");
-            player->Int += 1;
-        } else {
-            printf("위상 해석 실패로 반발을 받았습니다. HP -10\n");
-            player->hp -= 10; if (player->hp < 0) player->hp = 0;
+        else {
+            printf("장인: \"최고의 기술에는 정당한 대가가 필요한 법이네. 돈을 더 가져오게.\"\n");
         }
-    } else if (c == 3) {
-        if (StatCheck("민첩", player->Dex, 12)) {
-            printf("최소 노출로 회랑을 돌파. Dex +1\n");
-            player->Dex += 1;
-        } else {
-            printf("균형을 잃고 불필요하게 오래 머물렀습니다. HP -8\n");
-            player->hp -= 8; if (player->hp < 0) player->hp = 0;
+    }
+    else if (c == 2) {
+        if (player->gold >= 100) {
+            player->gold -= 100;
+            player->Def += 2;
+            printf("특수 합금으로 갑옷의 약점을 완벽하게 보강했습니다! 방어력이 크게 상승합니다. (Def +2)\n");
         }
-    } else {
-        printf("망설이다 저주가 짙어집니다. HP -6\n");
-        player->hp -= 6; if (player->hp < 0) player->hp = 0;
+        else {
+            printf("장인: \"재료비도 안 나오겠군. 돌아가게.\"\n");
+        }
+    }
+    else {
+        printf("대장간을 나옵니다.\n");
     }
     EnterToContinue();
 }
 
+/* 대도시 여관 이벤트 */
+void BigCity_Inn(Player* player) {
+    printDivider("그랜드 호텔");
+    printf("대리석 바닥과 샹들리에가 빛나는 최고급 숙소입니다.\n");
+    printf("이곳의 침대는 구름 위에 누운 듯한 편안함을 제공합니다.\n");
+
+    printf("1) 스위트룸 숙박 (50 골드 / HP 완전 회복)\n");
+    printf("2) 로비에서 나간다\n");
+    printf("> ");
+
+    int c;
+    scanf("%d", &c); while (getchar() != '\n');
+
+    if (c == 1) {
+        if (player->gold >= 50) {
+            player->gold -= 50;
+            player->hp = player->maxHp;
+            printf("최고급 요리와 마사지, 숙면을 즐겼습니다.\n");
+            printf("HP가 완전히 회복되었습니다! (%d/%d)\n", player->hp, player->maxHp);
+        }
+        else {
+            printf("지배인: \"손님, 골드가 부족해 보이시는군요.\"\n");
+        }
+    }
+    else {
+        printf("호텔을 나옵니다.\n");
+    }
+    EnterToContinue();
+}
+
+/* 대도시 도박장 이벤트 */
+void BigCity_Gamble(Player* player) {
+    printDivider("로얄 카지노");
+    printf("자욱한 연기 사이로 칩 부딪히는 소리와 환호성, 비명소리가 뒤섞입니다.\n");
+    printf("딜러가 매끄러운 손놀림으로 주사위를 쥐고 당신을 쳐다봅니다.\n");
+    printf("딜러: \"판돈을 거시겠습니까? 이기면 2배, 비기면 본전입니다.\"\n");
+
+    printf("배팅할 금액을 입력하세요 (0: 나가기, 보유: %d G): ", player->gold);
+
+    int bet;
+    if (scanf("%d", &bet) != 1) { while (getchar() != '\n'); return; }
+    while (getchar() != '\n');
+
+    if (bet <= 0) {
+        printf("도박장을 떠납니다.\n");
+        EnterToContinue();
+        return;
+    }
+
+    if (bet > player->gold) {
+        printf("딜러: \"돈이 없으시군요. 장난치지 마십시오.\"\n");
+        EnterToContinue();
+        return;
+    }
+
+    player->gold -= bet;
+    printf("\n주사위가 굴러갑니다...\n");
+
+
+    int pDice1 = 1 + rand() % 6;
+    int pDice2 = 1 + rand() % 6;
+    int pSum = pDice1 + pDice2;
+
+    int dDice1 = 1 + rand() % 6;
+    int dDice2 = 1 + rand() % 6;
+    int dSum = dDice1 + dDice2;
+
+    printf("당신: [%d, %d] 합계 %d\n", pDice1, pDice2, pSum);
+    printf("딜러: [%d, %d] 합계 %d\n", dDice1, dDice2, dSum);
+
+    if (pSum > dSum) {
+        printf("\n*** 승리! ***\n");
+        printf("배팅금의 2배인 %d 골드를 획득했습니다!\n", bet * 2);
+        player->gold += (bet * 2);
+    }
+    else if (pSum == dSum) {
+        printf("\n- 무승부 -\n");
+        printf("배팅금을 돌려받습니다.\n");
+        player->gold += bet;
+    }
+    else {
+        printf("\n...패배...\n");
+        printf("돈을 잃었습니다.\n");
+    }
+    EnterToContinue();
+}
+
+/* 대도시 투기장 이벤트 */
+void BigCity_Arena(Player* player) {
+    printDivider("지하 투기장");
+    printf("철창으로 둘러싸인 경기장 안에서 관중들이 피를 원하며 소리칩니다.\n");
+    printf("자신의 강함을 증명하고 상금을 획득할 수 있습니다.\n");
+    printf("(주의: 투기장에서 죽으면 게임이 끝납니다!)\n\n");
+
+    printf("1) 루키 리그 (참가비 50G / 상금 100G / 난이도 하)\n");
+    printf("2) 베테랑 리그 (참가비 100G / 상금 300G / 난이도 중)\n");
+    printf("3) 챔피언 리그 (참가비 300G / 상금 1000G / 난이도 상)\n");
+    printf("4) 나간다\n");
+    printf("> ");
+
+    int c;
+    scanf("%d", &c); while (getchar() != '\n');
+
+    if (c == 4) return;
+
+    int fee = 0, prize = 0;
+    Enemy enemy;
+
+    if (c == 1) {
+        fee = 50; prize = 100;
+        initEnemy(&enemy, "투기장 노예", 50, 8, 0); // 약함
+    }
+    else if (c == 2) {
+        fee = 100; prize = 300;
+        initEnemy(&enemy, "검투사", 100, 15, 0); // 중간
+    }
+    else if (c == 3) {
+        fee = 300; prize = 1000;
+        initEnemy(&enemy, "투기장 챔피언", 200, 25, 0); // 매우 강함
+    }
+    else {
+        return;
+    }
+
+    if (player->gold < fee) {
+        printf("접수원: \"참가비가 부족하군. 돈을 벌어서 오게.\"\n");
+        EnterToContinue();
+        return;
+    }
+
+    player->gold -= fee;
+    printf("참가비 %d골드를 지불했습니다. 철창 문이 열립니다!\n", fee);
+
+    // 전투 시작
+    battle(player, &enemy);
+
+    if (player->hp > 0) {
+        printf("\n*** 경기 승리! ***\n");
+        printf("관중들의 환호와 함께 상금 %d 골드를 받았습니다!\n", prize);
+        player->gold += prize;
+    }
+    else {
+        printf("\n당신은 투기장의 차가운 바닥에서 쓰러졌습니다...\n");
+    }
+    EnterToContinue();
+}
+
+/* 대도시 대성당 이벤트 */
 void BigCity_Temple(Player* player) {
     printDivider("대성당");
     printf("높은 천장과 스테인드글라스를 통해 들어오는 빛이, 먼지 위로 조용히 흩어집니다.\n");
@@ -1162,7 +1498,8 @@ void BigCity_Temple(Player* player) {
 
     printf("1) 치유 의식 (30 골드, HP 완전 회복)\n");
     printf("2) 축복 의식 (60 골드, 모든 능력치 +1)\n");
-    printf("3) 그냥 떠난다\n> ");
+    printf("3) 그냥 떠난다\n");
+    printf("> ");
 
     int c;
     if (scanf("%d", &c) != 1) {
@@ -1202,6 +1539,7 @@ void BigCity_Temple(Player* player) {
     EnterToContinue();
 }
 
+/* 대도시 상점 이벤트 */
 void BigCity_PremiumShop(Player* player) {
     printDivider("상급 상점");
     printf("정돈된 진열대 위로 고급 장비와 특제 약품들이 가지런히 놓여 있습니다.\n");
@@ -1210,7 +1548,8 @@ void BigCity_PremiumShop(Player* player) {
     printf("1) 고급 회복약 (40 골드, HP +50)\n");
     printf("2) 힘의 상급 반지 (70 골드, Str +2)\n");
     printf("3) 지식 서적 (70 골드, Int +2)\n");
-    printf("4) 떠난다\n> ");
+    printf("4) 떠난다\n");
+    printf("> ");
 
     int c;
     if (scanf("%d", &c) != 1) {
@@ -1252,6 +1591,7 @@ void BigCity_PremiumShop(Player* player) {
     EnterToContinue();
 }
 
+/* 대도시 마법 길드 이벤트 */
 void BigCity_MageGuild(Player* player) {
     printDivider("마법 길드");
     printf("공중에 떠 있는 서적과 빙글도는 룬 조각들이 공간 전체에 흐르고 있습니다.\n");
@@ -1259,7 +1599,8 @@ void BigCity_MageGuild(Player* player) {
 
     printf("1) 마나 구조 강의 (Int 판정 난이도 13, 성공 시 Int +2)\n");
     printf("2) 정신 집중 훈련 (Def 판정 난이도 12, 성공 시 최대 HP +5)\n");
-    printf("3) 떠난다\n> ");
+    printf("3) 떠난다\n");
+    printf("> ");
 
     int c;
     if (scanf("%d", &c) != 1) {
@@ -1297,12 +1638,15 @@ void BigCity_MageGuild(Player* player) {
     EnterToContinue();
 }
 
+/* 대도시 모험가 길드 이벤트 */
 void BigCity_AdventurerGuild(Player* player) {
     printDivider("모험가 길드");
     printf("벽에는 수많은 의뢰서와 성공/실패 기록이 빽빽하게 붙어 있습니다.\n");
     printf("접수원이 말합니다. \"도시 주변을 괴롭히는 강적이 하나 있소. 처리해볼 텐가?\"\n\n");
 
-    printf("1) 수락한다 (전투)  2) 거절한다\n> ");
+    printf("1) 수락한다 (전투)\n");
+    printf("2) 거절한다\n");
+    printf("> ");
 
     int c;
     if (scanf("%d", &c) != 1) {
@@ -1337,6 +1681,7 @@ void BigCity_AdventurerGuild(Player* player) {
     EnterToContinue();
 }
 
+/* 대도시 공원 이벤트 */
 void BigCity_Park(Player* player) {
     printDivider("도시 공원");
     printf("어느 정도 정돈된 나무와 벤치, 사람들의 웃음소리가 들리는 한켠입니다.\n");
@@ -1360,217 +1705,308 @@ void BigCity_Park(Player* player) {
     EnterToContinue();
 }
 
+/* 대도시 왕궁 이벤트 */
+void BigCity_RoyalPalace(Player* player) {
+    printDivider("왕궁 알현실");
+    printf("화려한 레드카펫을 지나 국왕 앞에 섭니다.\n");
+    printf("전운이 감도는 왕궁은 매우 분주해 보입니다.\n\n");
 
-void Castle_ShadowKnight(Player* player) {
-    printDivider("그림자 기사");
-    printf("검은 갑주는 형체를 이루고 연기가 칼날을 따라 응축됩니다.\n");
-    Enemy knight;
-    initEnemy(&knight, "그림자 기사", 55 + rand()%11, 12 + rand()%4, 80);
-    battle(player, &knight);
-    if (player->hp > 0) {
-        printf("잔류 에너지가 신체를 강화합니다. Str +1, Def +1\n");
-        player->Str += 1; player->Def += 1;
+    /* 1. 성검을 이미 소지한 경우 */
+    if (player->hasHolySword) {
+        printf("국왕: \"오오! 자네 등 뒤의 그 검... 드디어 성검을 손에 넣었구만!\"\n");
+        printf("국왕: \"그 검의 신성한 빛이라면 마왕성의 [검은 결계]도 단숨에 걷어낼 수 있을 걸세.\"\n");
+        printf("국왕: \"길거리 북쪽 끝에서 마왕성을 찾게. 그리고 부디 승리하고 돌아오게나!\"\n");
     }
-    EnterToContinue();
-}
-
-void Castle_DarkAltar(Player* player) {
-    printDivider("암흑 제단");
-    printf("맥동하는 코어와 흩어진 룬 조각. 선택이 필요합니다.\n");
-    printf("1) 물리 파괴(Str 15) 2) 룬 재배열(Int 15) 3) 에너지 흡수(Def 15) 4) 관망\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    if (c == 1) {
-        if (StatCheck("힘", player->Str, 15)) {
-            printf("균열 확산 성공! Str +2\n");
-            player->Str += 2;
-        } else {
-            printf("반발 폭렬! HP -18\n");
-            player->hp -= 18; if (player->hp < 0) player->hp = 0;
-        }
-    } else if (c == 2) {
-        if (StatCheck("지능", player->Int, 15)) {
-            printf("위상 재조정 성공! Int +2\n");
-            player->Int += 2;
-        } else {
-            printf("실패한 교정이 충격파를 발생시켰습니다. HP -16\n");
-            player->hp -= 16; if (player->hp < 0) player->hp = 0;
-        }
-    } else if (c == 3) {
-        if (StatCheck("방어", player->Def, 15)) {
-            printf("안정적 흡수. Def +2, 최대HP +5\n");
-            player->Def += 2; player->maxHp += 5; player->hp += 5;
-        } else {
-            printf("과부하 역류! HP -14\n");
-            player->hp -= 14; if (player->hp < 0) player->hp = 0;
-        }
-    } else {
-        printf("코어는 더 밝아질 뿐 아무 것도 얻지 못했습니다. HP -6\n");
-        player->hp -= 6; if (player->hp < 0) player->hp = 0;
-    }
-    EnterToContinue();
-}
-
-void Castle_MaliceStorm(Player* player) {
-    printDivider("악의 폭풍");
-    printf("농밀한 마력 소용돌이가 생체 리듬을 뒤틀려 놓습니다.\n");
-    printf("1) 힘으로 돌파(Str 14) 2) 방어로 견딘다(Def 14) 3) 흐름을 읽는다(Int 14) 4) 틈새 통과(Dex 14) 5) 지연\n> ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    int diff = 14;
-    const char* statName = NULL;
-    int* statPtr = NULL;
-
-    if (c == 1) { statName = "힘"; statPtr = &player->Str; }
-    else if (c == 2) { statName = "방어"; statPtr = &player->Def; }
-    else if (c == 3) { statName = "지능"; statPtr = &player->Int; }
-    else if (c == 4) { statName = "민첩"; statPtr = &player->Dex; }
+    /* 2. 성검이 없는 경우 */
     else {
-        printf("판단 지연으로 폭풍에 휘말립니다. HP -12\n");
-        player->hp -= 12; if (player->hp < 0) player->hp = 0;
-        EnterToContinue();
-        return;
-    }
+        printf("국왕: \"마왕을 물리치기 위해서는 [전설의 성검]이 필요하다네.\"\n");
 
-    if (StatCheck(statName, *statPtr, diff)) {
-        printf("폭풍을 극복하며 잠재 능력이 고양됩니다. %s +1\n", statName);
-        (*statPtr) += 1;
-    } else {
-        printf("잔류 전하가 신경계를 태웁니다. HP -15\n");
-        player->hp -= 15; if (player->hp < 0) player->hp = 0;
-    }
-    EnterToContinue();
-}
-
-void Castle_FinalBattle(Player* player) {
-    printDivider("마왕과의 결전");
-    printf("뒤틀린 공간과 붉은 파동. 마왕이 천천히 시선을 돌립니다.\n");
-    Enemy demonLord;
-    initEnemy(&demonLord, "마왕", 200, 18, 500);
-    battle(player, &demonLord);
-    if (player->hp > 0) {
-        printDivider("승리");
-        printf("어둠의 실이 붕괴되며 세계는 회복 가능성을 되찾습니다.\n");
-        printf("보상: 모든 기본 스탯 +1, 골드 +300\n");
-        player->Str +=1; player->Dex +=1; player->Def +=1; player->Int +=1;
-        player->gold += 300;
-    } else {
-        printDivider("패배");
-        printf("의지가 분해되어 어둠은 잠시 더 지속됩니다.\n");
-    }
-    EnterToContinue();
-}
-/* ====== 마왕성 개별 이벤트 끝 ====== */
-
-void RoadEvent_ForestEntrance(Player* player) {
-    printDivider("전설의 숲 입구");
-    printf("전설로만 듣던 숲의 경계. 나무들은 정상적인 성장 방향을 잊은 듯 서로 엮여 아치형 통로를 만들고\n");
-    printf("희미한 빛의 입자들이 공중에서 숨을 쉬듯 천천히 맥동합니다.\n");
-    printf("숲으로 들어가겠습니까? (1: 들어간다 2: 아직 아니다): ");
-    int c; scanf("%d",&c); while(getchar()!='\n');
-    if (c == 1) {
-        printf("당신은 얽힌 뿌리 사이로 발을 들입니다. 공기는 한층 조용하고 또렷합니다.\n");
-        player->location = LOC_FOREST;
-    } else {
-        printf("아직 준비가 더 필요하다고 느끼며 길을 계속 걷습니다.\n");
+        if (!player->heardLegend) {
+            printf("국왕: \"자네에게 [미혹의 숲] 지도를 주겠네. 그곳 깊은 곳에 성검이 잠들어 있다네.\"\n");
+            printf("\n[정보 획득] 전설의 숲 위치가 해금되었습니다!\n");
+            printf("이제 길거리(Road) 탐험 중 [전설의 숲] 입구를 발견할 수 있습니다.\n");
+            player->heardLegend = 1;
+        }
+        else {
+            printf("국왕: \"어서 숲으로 가서 성검을 찾아오게. 시간이 없다네.\"\n");
+            printf("(이미 숲의 위치를 알고 있습니다.)\n");
+        }
     }
     EnterToContinue();
 }
 
+/* 숲 이벤트 */
+static void Forest_Stage1_Maze(Player* player);
+static void Forest_Stage2_Guardian(Player* player);
+static void Forest_Stage3_Sword(Player* player);
 
-/* 간단 야영 이벤트 (현재 호출되지 않지만 향후 확장 대비) */
-void CampingEvent(Player* player) {
-    printDivider("야영");
-    printf("휴대 장비를 펼쳐 조용한 밤공기에 호흡을 맞춥니다.\n");
-    int heal = 25;
-    player->hp += heal;
-    if (player->hp > player->maxHp) player->hp = player->maxHp;
-    printf("짧은 회복 시간. HP +%d (현재 %d/%d)\n", heal, player->hp, player->maxHp);
-    EnterToContinue();
-}
-
-/* 소매치기 시도 (Town_Square 경로) */
-void Town_Pickpocket(Player* player) {
-    printDivider("소매치기 시도");
-    printf("혼잡한 틈 사이 노출된 헐거운 주머니 하나가 눈에 들어옵니다.\n");
-    if (StatCheck("민첩", player->Dex, 11)) {
-        int g = 20 + rand()%21;
-        player->gold += g;
-        printf("은밀하게 추출 성공! 골드 +%d (현재 %d)\n", g, player->gold);
-    } else {
-        int loss = 10; if (player->gold < loss) loss = player->gold;
-        int dmg = 5 + rand()%6;
-        player->gold -= loss;
-        player->hp -= dmg; if (player->hp < 0) player->hp = 0;
-        printf("발각! 밀쳐집니다. 골드 -%d, HP -%d\n", loss, dmg);
-    }
-    EnterToContinue();
-}
-
-/* 전설 노인 (성검 힌트) */
-void Town_Legend(Player* player) {
-    printDivider("전설의 노인");
-    if (player->heardLegend) {
-        printf("그는 조용히 고개만 끄덕입니다. 더 줄 말은 없습니다.\n");
-    } else {
-        printf("“얽힌 숲 중심의 고요... 빛이 숨을 쉬는 자리. 검은 거기.”\n");
-        player->heardLegend = 1;
-        printf("전설을 들었습니다. (전설의 숲 진입 이벤트 해금)\n");
-    }
-    EnterToContinue();
-}
-
-/* 숲 지역 디스패처 */
 void Event_Forest(Player* player) {
-    printDivider("전설의 숲");
-    if (!player->hasHolySword) {
-        Forest_HolySword(player); /* 성공 시 마왕성 입구로 이동, 실패 시 길 복귀 */
+    printDivider("미혹의 숲 (Lost Woods)");
+
+    /* 이미 성검을 얻은 경우 */
+    if (player->hasHolySword) {
+        printf("성검의 주인이 숲에 들어서자, 안개가 걷히고 정령들이 경의를 표합니다.\n");
+        printf("평화로운 숲의 기운을 느낍니다. (HP/MP가 조금 회복됩니다.)\n");
+        player->hp += 10;
+        if (player->hp > player->maxHp) player->hp = player->maxHp;
+
+        printf("\n다시 숲 밖으로 나갑니다.\n");
+        player->location = LOC_ROAD;
+        EnterToContinue();
         return;
     }
-    printf("성검의 잔광이 비틀린 수목 배열을 정돈해 통로를 형성합니다.\n");
-    printf("1 마왕성으로 간다 2 떠난다 > ");
-    int c; if (scanf("%d",&c)!=1){ while(getchar()!='\n'); printf("입력 오류.\n"); EnterToContinue(); return; }
-    while(getchar()!='\n');
-    if (c==1) {
-        DemonKingCastle_Entrance(player);
-    } else {
-        printf("당신은 다시 길로 돌아갑니다.\n");
+
+    /* 성검을 찾으러 온 경우 (시련 시작) */
+    printf("왕궁의 지도를 따라 숲 깊은 곳으로 들어왔습니다.\n");
+    printf("이곳은 시공간이 뒤틀려 있어, 자격 없는 자를 영원히 헤매게 만듭니다.\n");
+    printf("성검을 얻기 위한 세 가지 시련이 당신을 기다립니다.\n\n");
+
+    printf("1) 시련에 도전한다\n");
+    printf("2) 돌아간다\n");
+    printf("> ");
+
+    int choice;
+    if (scanf("%d", &choice) != 1) { while (getchar() != '\n'); return; }
+    while (getchar() != '\n');
+
+    if (choice == 1) {
+        Forest_Stage1_Maze(player);
+    }
+    else {
+        printf("아직 준비가 되지 않았습니다. 숲을 빠져나갑니다.\n");
         player->location = LOC_ROAD;
         EnterToContinue();
     }
 }
 
-/* 마왕성 진행 관리 */
-static int demonCastleStage = 0;
+/* [1단계] 환영의 미로 */
+static void Forest_Stage1_Maze(Player* player) {
+    printDivider("제1의 시련: 환영의 미로");
+    printf("짙은 안개가 시야를 가리고, 동서남북의 감각이 사라집니다.\n");
+    printf("바람 소리가 마치 사람의 목소리처럼 들려 유혹합니다.\n");
+    printf("올바른 길을 찾아내야 합니다.\n\n");
 
-void Event_DemonCastle(Player* player) {
-    printDivider("마왕성 내부");
-    if (player->hp <= 0) { printf("움직일 힘이 없습니다.\n"); EnterToContinue(); return; }
+    printf("1) 마력의 흐름을 읽어 길을 찾는다 (지능 판정)\n");
+    printf("2) 감각에 의존해 빠르게 돌파한다 (민첩 판정)\n");
+    printf("3) 힘으로 덤불을 베며 직진한다 (힘 판정)\n");
+    printf("> ");
 
-    if (demonCastleStage >= 5) {
-        Castle_FinalBattle(player);
-        /* 최종전 후 초기화 */
-        demonCastleStage = 0;
-        player->location = LOC_ROAD;
-        return;
+    int c;
+    scanf("%d", &c); while (getchar() != '\n');
+
+    int success = 0;
+    if (c == 1) 
+        success = StatCheck("지능", player->Int, 25);
+    else if (c == 2)
+        success = StatCheck("민첩", player->Dex, 30);
+    else if (c == 3)
+        success = StatCheck("힘", player->Str, 35);
+    else success = 0;
+
+    if (success) {
+        printf("\n[성공] 환영을 꿰뚫어 보고 안개 너머의 통로를 발견했습니다!\n");
+        EnterToContinue();
+        Forest_Stage2_Guardian(player); /* 다음 스테이지로 */
     }
+    else {
+        printf("\n[실패] 당신은 같은 자리를 맴돌다 지쳐버렸습니다.\n");
+        int dmg = 10 + rand() % 6;
+        player->hp -= dmg;
+        if (player->hp < 0) player->hp = 0;
+        printf("체력 소모: -%d\n", dmg);
 
-    printf("정화 진행도: %d / 5\n", demonCastleStage);
-    printf("1 전진  2 후퇴(도로) > ");
-    int c; if (scanf("%d",&c)!=1){ while(getchar()!='\n'); printf("입력 오류.\n"); EnterToContinue(); return; }
-    while(getchar()!='\n');
+        printf("결국 숲의 입구로 쫓겨났습니다.\n");
+        player->location = LOC_ROAD; /* 실패 시 도로로 쫓겨남 */
+        EnterToContinue();
+    }
+}
 
-    if (c==2) {
-        printf("강한 압력을 뒤로하고 성을 빠져나옵니다.\n");
+/* 숲의 수호자 이벤트 */
+static void Forest_Stage2_Guardian(Player* player) {
+    printDivider("제2의 시련: 숲의 수호자");
+    printf("미로를 통과하자 신비로운 공터가 나타납니다.\n");
+    printf("그곳에는 덩굴과 고목으로 이루어진 거대한 [고대 수호자]가 길을 막고 있습니다.\n");
+    printf("수호자: \"성검을 원하는 자여... 그 힘을 증명하라.\"\n");
+
+    EnterToContinue();
+
+    /* 수호자 보스 */
+    Enemy guardian;
+    initEnemy(&guardian, "고대 수호자", 400, 18, 0);
+
+    battle(player, &guardian);
+
+    if (player->hp > 0) {
+        printf("\n수호자: \"자격... 인정한다...\"\n");
+        printf("수호자가 빛이 되어 흩어지며, 뒤쪽의 성역으로 가는 길이 열립니다.\n");
+        EnterToContinue();
+        Forest_Stage3_Sword(player); /* 마지막 스테이지로 */
+    }
+    else {
+        printf("수호자의 일격에 정신을 잃습니다...\n");
+    }
+}
+
+/* 성검 뽑기 */
+static void Forest_Stage3_Sword(Player* player) {
+    printDivider("제3의 시련: 선택받은 자");
+    printf("숲의 가장 깊은 곳, 성역(Sanctuary)입니다.\n");
+    printf("아무런 소음도 없는 고요한 공간 중앙에, 바위에 박힌 [성검]이 빛나고 있습니다.\n");
+    printf("검에서는 압도적인 신성력이 흘러나와 당신을 거부하려 합니다.\n");
+    printf("검을 뽑으시겠습니까?\n\n");
+
+    printf("1) 온 힘을 다해 검을 뽑는다 (힘 판정)\n");
+    printf("2) 포기하고 돌아간다\n");
+    printf("> ");
+
+    int c;
+    scanf("%d", &c); while (getchar() != '\n');
+
+    if (c == 2) {
+        printf("성검의 기운에 압도되어 발길을 돌립니다.\n");
         player->location = LOC_ROAD;
         EnterToContinue();
         return;
     }
 
-    int ev = rand()%4;
-    switch(ev){
-        case 0: Castle_CursedHall(player); break;
-        case 1: Castle_ShadowKnight(player); break;
-        case 2: Castle_DarkAltar(player); break;
-        case 3: Castle_MaliceStorm(player); break;
+    /* 마지막 힘 판정 */
+    printf("검자루를 쥐자 엄청난 저항감이 팔을 타고 흐릅니다!\n");
+    if (StatCheck("힘", player->Str, 15)) {
+        printf("\n[성공] 당신의 기백이 성검의 저항을 눌렀습니다.\n");
+        printf("콰아앙-!!\n");
+        printf("강렬한 빛기둥과 함께 성검이 바위에서 뽑혀 나옵니다!\n\n");
+
+        printf("======================================\n");
+        printf("       [전설의 성검] 획득! \n");
+        printf("======================================\n");
+        printf("성검의 힘이 몸속으로 흘러들어옵니다.\n");
+        printf("모든 능력치가 대폭 상승합니다! (All +5)\n");
+
+        player->hasHolySword = 1;
+        player->Str += 5;
+        player->Dex += 5;
+        player->Def += 5;
+        player->Int += 5;
+        player->maxHp += 50;
+        player->hp = player->maxHp;
+
+        printf("이제 마왕을 쓰러뜨릴 준비가 되었습니다.\n");
+        printf("마왕성으로 진격하십시오!\n");
     }
-    if (player->hp > 0) demonCastleStage++;
+    else {
+        printf("\n[실패] 검은 꿈쩍도 하지 않습니다.\n");
+        printf("오히려 성검의 반동으로 튕겨져 나갑니다. HP -20\n");
+        player->hp -= 20;
+        if (player->hp < 0) player->hp = 0;
+        printf("아직은 육체적 능력이 부족한 것 같습니다. (힘 15 이상 권장)\n");
+    }
+
+    /* 시련 종료 후 길로 복귀 */
+    player->location = LOC_ROAD;
+    EnterToContinue();
+}
+
+void RoadEvent_DemonCastleEntrance(Player* player) {
+    printDivider("마왕성 입구 (The Final Gate)");
+    printf("검은 안개가 자욱한 황무지 끝, 하늘을 찌를 듯 솟은 거대한 마왕성이 보입니다.\n");
+    printf("성 주변은 시공간이 뒤틀린 듯한 [검은 결계]로 굳게 닫혀 있습니다.\n\n");
+
+    /* 성검이 없는 경우 -> 진입 불가 */
+    if (!player->hasHolySword) {
+        printf("가까이 다가가려 하자, 보이지 않는 벽이 당신을 강하게 밀어냅니다.\n");
+        printf("...알 수 없는 강력한 힘이 성을 보호하고 있습니다.\n");
+        printf("지금의 상태로는 결계를 뚫을 수 없습니다.\n");
+        printf("(힌트: 결계를 파괴할 수 있는 '성스러운 힘'이 필요합니다.)\n");
+        EnterToContinue();
+        return; /* 도로로 복귀 */
+    }
+
+    /* 성검이 있는 경우 -> 결계 해제 이벤트 */
+    if (!player->isBarrierBroken) {
+        printf("그때, 당신의 등 뒤에 있는 [성검]이 격렬하게 진동하기 시작합니다!\n");
+        printf("검을 뽑아들자, 눈부신 빛기둥이 스스로 결계를 향해 뻗어 나갑니다.\n\n");
+
+        EnterToContinue();
+
+        printf("콰아아아앙-!!\n");
+        printf("성검의 빛이 검은 장막을 종잇장처럼 찢어발깁니다.\n");
+        printf("대지가 울리고 사악한 기운이 흩어집니다.\n");
+        printf("[알림] 마왕성으로 향하는 길이 열렸습니다!\n");
+
+        player->isBarrierBroken = 1; /* 결계 영구 해제 */
+    }
+    else {
+        printf("성검에 의해 결계가 파괴된 상태입니다. 성문은 무방비하게 열려 있습니다.\n");
+    }
+
+    /* 진입 선택 */
+    printf("\n1) 최후의 결전을 시작한다 (마왕성 진입)\n");
+    printf("2) 마지막 정비를 하러 간다 (돌아간다)\n");
+    printf("> ");
+
+    int c;
+    if (scanf("%d", &c) != 1) { while (getchar() != '\n'); return; }
+    while (getchar() != '\n');
+
+    if (c == 1) {
+        printf("\n운명의 시간이 다가왔습니다. 당신은 성 안으로 발을 내딛습니다.\n");
+        player->location = LOC_DEMON_CASTLE;
+
+        /* DemonKingCastle_Entrance 함수는 기존에 정의한 것을 호출 */
+        DemonKingCastle_Entrance(player);
+    }
+    else {
+        printf("아직 준비가 필요합니다. 발길을 돌립니다.\n");
+    }
+    EnterToContinue();
+}
+
+void DemonKingCastle_Entrance(Player* player) {
+    /* 최종장 연출 */
+    ClearScreen();
+    printDivider("마왕성 - 알현실 (Final Stage)");
+    printf("적막만이 감도는 긴 회랑을 지나, 마침내 거대한 옥좌 앞에 도착했습니다.\n");
+    printf("천장 높이 솟은 검은 기둥들 사이로 차가운 냉기가 흐릅니다.\n");
+    printf("옥좌에 앉아있던 거대한 그림자가 천천히 몸을 일으킵니다.\n\n");
+
+    printf("마왕: \"호오... 결계를 찢고 여기까지 도달한 인간이 있을 줄이야.\"\n");
+    printf("마왕: \"그 성검의 빛... 역겹기 그지없구나.\"\n");
+    printf("마왕: \"내 직접 그 희망을 꺾어주마. 영원한 어둠 속에서 후회하거라!\"\n");
+
+    EnterToContinue();
+
+    /* 마왕 보스  */
+    Enemy boss;
+    initEnemy(&boss, "마왕(Demon King)", 600, 30, 0);
+
+    /* 최종 전투 시작 */
+    battle(player, &boss);
+
+    /* 4. 엔딩 분기 */
+    if (player->hp > 0) {
+        /* 승리: 해피 엔딩 */
+        ClearScreen();
+        printDivider("GAME CLEAR");
+        printf("마왕: \"크아아악...!! 인간 따위에게... 이 내가...!!\"\n\n");
+
+        printf("당신의 성검이 마왕의 심장을 꿰뚫자, 검은 마력이 폭주하며 옥좌가 무너져 내립니다.\n");
+        printf("마왕의 육체가 먼지가 되어 흩어지고, 마왕성을 덮고 있던 어둠이 걷힙니다.\n");
+        printf("창문 틈으로 들어온 따스한 햇살이 당신의 지친 어깨를 비춥니다.\n\n");
+
+        printf("당신은 세상을 구했습니다.\n");
+        printf("이 이야기는 전설이 되어 영원히 기억될 것입니다.\n");
+
+        printf("\n========================================\n");
+        printf("       축하합니다! 게임을 클리어했습니다.       \n");
+        printf("           Thank you for playing!           \n");
+        printf("========================================\n");
+
+        EnterToContinue();
+        exit(0); /* 게임 완전 종료 */
+    }
+    else {
+        /* 패배: 배드 엔딩 */
+        printf("마왕: \"가소롭구나. 이것이 너희들의 한계다.\"\n");
+        printf("당신의 의식이 흐려집니다. 세계는 어둠에 잠식될 것입니다...\n");
+    }
 }

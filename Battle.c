@@ -78,7 +78,6 @@ void battle(Player* player, Enemy* enemy) {
             printf("%s를 물리쳤습니다!\n", enemy->name);
             player->gold += enemy->gold;
             printf("골드 %d 획득!\n", enemy->gold);
-            EnterToContinue();
             return;
         }
 
@@ -100,6 +99,4 @@ void battle(Player* player, Enemy* enemy) {
             return;
         }
     }
-
-    EnterToContinue();
 }
