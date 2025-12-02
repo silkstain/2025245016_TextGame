@@ -53,10 +53,8 @@ void Cave_UndergroundLake(Player* player);
 void Cave_AncientCarving(Player* player);
 void Cave_DeadGuard(Player* player);
 
-/* 대도시(Big City) 허브 */
+/* 대도시 이벤트 */
 void Event_BigCity(Player* player);
-
-/* 대도시 상세 */
 void BigCity_Inn(Player* player);
 void BigCity_Gamble(Player* player);
 void BigCity_Arena(Player* player);
